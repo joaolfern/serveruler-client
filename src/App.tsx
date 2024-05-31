@@ -2,6 +2,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import Container from "@mui/material/Container";
 import {
   Box,
+  Button,
   Chip,
   CircularProgress,
   Divider,
@@ -22,6 +23,8 @@ const SERVER_OPTIONS = [
   { label: "Shorten", value: "3002" },
 ];
 
+const isProduction = import.meta.env.VITE_IS_PRODUCTION;
+
 function App() {
   const { data, envOptions } = useUserData();
   const [selectedEnv, setSelectedEnv] = useState<string>(envOptions[0]);
@@ -39,56 +42,68 @@ function App() {
 
   return (
     <Container maxWidth="sm">
-      <Box>
-        <Box display="flex" justifyContent="center" marginBottom=".5em">
-          <Typography variant="h3" component="h1">
-            Serveruler
-          </Typography>
-        </Box>
-        <Stack spacing="1em">
-          <div>
-            <Typography variant="h4" component="h2">
-              Environment
-            </Typography>
-            <Stack direction="row" spacing=".5em">
-              {envOptions.map((option) => (
-                <Chip
-                  label={option}
-                  variant={option === selectedEnv ? "filled" : "outlined"}
-                  onClick={() => handleEnv(option)}
-                />
-              ))}
-            </Stack>
-          </div>
-          <div>
-            <Typography variant="h4" component="h2">
-              Servers
-            </Typography>
-            <Stack direction="row" spacing=".5em">
-              {SERVER_OPTIONS.map(({ label, value }) => (
-                <Chip
-                  label={label}
-                  variant={value === selectedServer ? "filled" : "outlined"}
-                  onClick={() => setSelectedServer(value)}
-                />
-              ))}
-            </Stack>
-          </div>
-        </Stack>
+      <Box
+        display="flex"
+        justifyContent="center"
+        marginBottom=".5em"
+        gap=".5em"
+      >
+        <img src="https://i.imgur.com/EXY2Msb.png" height={50} width={50} />
+        <Typography variant="h3" component="h1">
+          Serveruler
+        </Typography>
       </Box>
-      <List>
-        {Object.entries(data).map(([user, data]) => (
-          <Fragment key={user}>
-            <User
-              user={user}
-              data={data}
-              selectedEnv={selectedEnv}
-              selectedServer={selectedServer}
-            />
-            <Divider variant="inset" component="li" />
-          </Fragment>
-        ))}
-      </List>
+      {isProduction ? (
+        <ProductionRedirect />
+      ) : (
+        <>
+          <Box>
+            <Stack spacing="1em">
+              <div>
+                <Typography variant="h4" component="h2">
+                  Environment
+                </Typography>
+                <Stack direction="row" spacing=".5em">
+                  {envOptions.map((option) => (
+                    <Chip
+                      label={option}
+                      variant={option === selectedEnv ? "filled" : "outlined"}
+                      onClick={() => handleEnv(option)}
+                    />
+                  ))}
+                </Stack>
+              </div>
+              <div>
+                <Typography variant="h4" component="h2">
+                  Servers
+                </Typography>
+                <Stack direction="row" spacing=".5em">
+                  {SERVER_OPTIONS.map(({ label, value }) => (
+                    <Chip
+                      label={label}
+                      variant={value === selectedServer ? "filled" : "outlined"}
+                      onClick={() => setSelectedServer(value)}
+                    />
+                  ))}
+                </Stack>
+              </div>
+            </Stack>
+          </Box>
+          <List>
+            {Object.entries(data).map(([user, data]) => (
+              <Fragment key={user}>
+                <User
+                  user={user}
+                  data={data}
+                  selectedEnv={selectedEnv}
+                  selectedServer={selectedServer}
+                />
+                <Divider variant="inset" component="li" />
+              </Fragment>
+            ))}
+          </List>
+        </>
+      )}
     </Container>
   );
 }
@@ -122,7 +137,7 @@ function useUserData() {
 }
 
 async function fetchData() {
-  const response = await fetch("data.json");
+  const response = await fetch("data4fbfb2e144a02b8d1347.json");
 
   const data = await response.json();
 
@@ -232,4 +247,17 @@ function copyToClipboard(data: string | undefined) {
   } catch (err) {
     console.error(err);
   }
+}
+
+function ProductionRedirect() {
+  return (
+    <Stack direction="row" spacing="1em" justifyContent="center">
+      <Button href="http://10.10.0.197:5173/" variant="outlined">
+        Presencial
+      </Button>
+      <Button href="http://172.24.196.14:5173/" variant="outlined">
+        Home-office
+      </Button>
+    </Stack>
+  );
 }
