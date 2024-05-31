@@ -1,0 +1,22 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "terminal.integrated.profiles.linux": {
+    "BashWithNvm": {
+      "id": "BashWithNvm",
+      "path": "bash",
+      "source": "bash",
+      "args": [
+        "-c",
+        "[ -f .nvmrc ] && { [ -f ./scripts/loadNvmAndNode.sh ] && ./scripts/loadNvmAndNode.sh || { [ -f /usr/local/bin/loadNvmAndNode.sh ] && loadNvmAndNode.sh || true; }; } || true; exec $SHELL"
+      ],
+      "extensionIdentifier": "linux",
+      "icon": "terminal-bash",
+      "title": "Bash with NVM"
+    }
+  },
+  "terminal.integrated.defaultProfile.linux": "BashWithNvm",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+}
