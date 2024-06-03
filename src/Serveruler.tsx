@@ -113,7 +113,7 @@ const SERVER_OPTIONS = [
 ];
 
 async function fetchData() {
-  const response = await fetch("data4fbfb2e144a02b8d1347.json");
+  const response = await fetch("data.json");
 
   const data = await response.json();
 
