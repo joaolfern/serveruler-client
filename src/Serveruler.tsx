@@ -14,10 +14,13 @@ import {
 import CloudIcon from "@mui/icons-material/Cloud";
 import CloudOffIcon from "@mui/icons-material/CloudOff";
 import CopyIcon from "@mui/icons-material/ContentCopy";
+import { getIsCompanyDay } from "./utils/getIsCompanyDay";
 
 export default function Serveruler() {
   const { data, envOptions } = useUserData();
-  const [selectedEnv, setSelectedEnv] = useState<string>(envOptions[0]);
+  const [selectedEnv, setSelectedEnv] = useState<string>(
+    () => envOptions[getInitialEnvOptionIndex()]
+  );
   const [selectedServer, setSelectedServer] = useState<string>(
     SERVER_OPTIONS[0].value
   );
@@ -26,7 +29,9 @@ export default function Serveruler() {
   }
 
   useEffect(() => {
-    if (!selectedEnv && envOptions[0]) setSelectedEnv(envOptions[0]);
+    const initialEnvOptionIndex = getInitialEnvOptionIndex();
+    if (!selectedEnv && envOptions[initialEnvOptionIndex])
+      setSelectedEnv(envOptions[initialEnvOptionIndex]);
   }, [envOptions]);
 
   return (
@@ -65,7 +70,7 @@ export default function Serveruler() {
       </Box>
       <List>
         {Object.entries(data).map(([user, data]) => (
-          <Fragment key={user}>
+          <Fragment key={user + selectedServer + selectedEnv}>
             <User
               user={user}
               data={data}
@@ -108,8 +113,10 @@ function useUserData() {
 
 const SERVER_OPTIONS = [
   { label: "Core", value: "3000" },
-  { label: "Indiky", value: "3001" },
+  { label: "Indiky Server", value: "3001" },
   { label: "Shorten", value: "3002" },
+  { label: "Indiky Web", value: "4000" },
+  { label: "Auto X", value: "4010" },
 ];
 
 async function fetchData() {
@@ -197,7 +204,8 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
 async function getIsOnline(address: string, port: string) {
   try {
     await fetch(`http://${address}:${port}`, {
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(80000),
+      mode: "no-cors",
     });
 
     return true;
@@ -223,4 +231,11 @@ function copyToClipboard(data: string | undefined) {
   } catch (err) {
     console.error(err);
   }
+}
+
+function getInitialEnvOptionIndex() {
+  const isCompanyDay = getIsCompanyDay();
+  const intialOptionIndex = isCompanyDay ? 0 : 1;
+
+  return intialOptionIndex;
 }

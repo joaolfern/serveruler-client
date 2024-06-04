@@ -3,6 +3,7 @@ import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
+import { getIsCompanyDay } from "./utils/getIsCompanyDay";
 
 const Serveruler = lazy(() => import("./Serveruler"));
 const isProduction = import.meta.env.VITE_IS_PRODUCTION;
@@ -39,8 +40,7 @@ function App() {
 export default App;
 
 function redirectToLocalNetwork() {
-  const weekDay = new Date().getDay();
-  const isCompanyDay = COMPANY_DAYS.includes(weekDay);
+  const isCompanyDay = getIsCompanyDay();
   const ipAddress = isCompanyDay ? COMPANY_IP_ADDRESS : HOME_IP_ADDRESS;
 
   window.location.href = ipAddress;
@@ -48,8 +48,6 @@ function redirectToLocalNetwork() {
 
 const COMPANY_IP_ADDRESS = "http://10.10.0.197:5173/";
 const HOME_IP_ADDRESS = "http://172.24.196.14:5173/";
-
-const COMPANY_DAYS = [0, 1, 3, 5, 6];
 
 const Loader = () => {
   return (
