@@ -14,7 +14,9 @@ import {
 import CloudIcon from "@mui/icons-material/Cloud";
 import CloudOffIcon from "@mui/icons-material/CloudOff";
 import CopyIcon from "@mui/icons-material/ContentCopy";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { getIsCompanyDay } from "./utils/getIsCompanyDay";
+import { ButtonBase } from "@mui/material";
 
 export default function Serveruler() {
   const { data, envOptions } = useUserData();
@@ -45,6 +47,7 @@ export default function Serveruler() {
             <Stack direction="row" spacing=".5em">
               {envOptions.map((option) => (
                 <Chip
+                  key={option}
                   label={option}
                   variant={option === selectedEnv ? "filled" : "outlined"}
                   onClick={() => handleEnv(option)}
@@ -95,7 +98,7 @@ function useUserData() {
       setData(data);
     }
 
-    updateData();
+    if (data) updateData();
   }, []);
 
   useEffect(() => {
@@ -169,18 +172,27 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
   }
 
   useEffect(() => {
-    updateStatus();
-  }, [selectedEnv, selectedServer, data]);
+    if (address) updateStatus();
+  }, [selectedEnv, selectedServer, data, address]);
 
   function copy() {
-    const ip = `http://${address}:${selectedServer}`;
+    const ip = getCompleteAddress(address, selectedServer);
     copyToClipboard(ip);
+  }
+
+  function openInNewWindow() {
+    const ip = getCompleteAddress(address, selectedServer);
+
+    window.open(ip, "_target");
   }
 
   return (
     <ListItem
       secondaryAction={
         <Stack direction="row" spacing=".5em">
+          <IconButton onClick={openInNewWindow}>
+            <OpenInNewIcon />
+          </IconButton>
           <IconButton onClick={copy}>
             <CopyIcon />
           </IconButton>
@@ -196,14 +208,21 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
         </Stack>
       }
     >
-      <ListItemText primary={user} secondary={data[selectedEnv]} />
+      <ListItemText
+        primary={user}
+        secondary={
+          <ButtonBase onClick={() => copyToClipboard(data[selectedEnv])}>
+            {data[selectedEnv]}
+          </ButtonBase>
+        }
+      />
     </ListItem>
   );
 }
 
 async function getIsOnline(address: string, port: string) {
   try {
-    await fetch(`http://${address}:${port}`, {
+    await fetch(getCompleteAddress(address, port), {
       signal: AbortSignal.timeout(80000),
       mode: "no-cors",
     });
@@ -238,4 +257,10 @@ function getInitialEnvOptionIndex() {
   const intialOptionIndex = isCompanyDay ? 0 : 1;
 
   return intialOptionIndex;
+}
+
+function getCompleteAddress(address: string, port: string) {
+  const ip = `http://${address}:${port}`;
+
+  return ip;
 }
