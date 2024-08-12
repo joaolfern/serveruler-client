@@ -1,12 +1,19 @@
 import { Suspense, lazy, useLayoutEffect } from "react";
-import Container from "@mui/material/Container";
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
-import Typography from "@mui/material/Typography";
 import { getIsCompanyDay } from "./utils/getIsCompanyDay";
+import { Layout } from "./layout/Layout";
+import { appTheme } from "./theme/appTheme";
 
 const Serveruler = lazy(() => import("./Serveruler"));
 const isProduction = import.meta.env.VITE_IS_PRODUCTION;
+
+const theme =
+  window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
 
 function App() {
   useLayoutEffect(() => {
@@ -14,26 +21,18 @@ function App() {
   }, [isProduction]);
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        display="flex"
-        justifyContent="center"
-        marginBottom=".5em"
-        gap=".5em"
-      >
-        <img src="https://i.imgur.com/EXY2Msb.png" height={50} width={50} />
-        <Typography variant="h3" component="h1">
-          Serveruler
-        </Typography>
-      </Box>
-      {isProduction ? (
-        <Loader />
-      ) : (
-        <Suspense fallback={<Loader />}>
-          <Serveruler />
-        </Suspense>
-      )}
-    </Container>
+    <ThemeProvider theme={appTheme(theme)}>
+      <CssBaseline />
+      <Layout>
+        {isProduction ? (
+          <Loader />
+        ) : (
+          <Suspense fallback={<Loader />}>
+            <Serveruler />
+          </Suspense>
+        )}
+      </Layout>
+    </ThemeProvider>
   );
 }
 
