@@ -1,6 +1,8 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import {
   Box,
+  Card,
+  CardContent,
   Chip,
   CircularProgress,
   Divider,
@@ -17,6 +19,7 @@ import CopyIcon from "@mui/icons-material/ContentCopy";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { getIsCompanyDay } from "./utils/getIsCompanyDay";
 import { ButtonBase } from "@mui/material";
+import { copyToClipboard } from "./utils/copyToClipboard";
 
 export default function Serveruler() {
   const { data, envOptions } = useUserData();
@@ -40,35 +43,36 @@ export default function Serveruler() {
     <>
       <Box>
         <Stack spacing="1em">
-          <div>
-            <Typography variant="h4" component="h2">
-              Environment
-            </Typography>
-            <Stack direction="row" spacing=".5em">
-              {envOptions.map((option) => (
-                <Chip
-                  key={option}
-                  label={option}
-                  variant={option === selectedEnv ? "filled" : "outlined"}
-                  onClick={() => handleEnv(option)}
-                />
-              ))}
-            </Stack>
-          </div>
-          <div>
-            <Typography variant="h4" component="h2">
-              Servers
-            </Typography>
-            <Stack direction="row" spacing=".5em">
-              {SERVER_OPTIONS.map(({ label, value }) => (
-                <Chip
-                  label={label}
-                  variant={value === selectedServer ? "filled" : "outlined"}
-                  onClick={() => setSelectedServer(value)}
-                />
-              ))}
-            </Stack>
-          </div>
+          <Card variant="outlined">
+            <CardContent>
+              <Typography variant="h5" component="h2">
+                Environment
+              </Typography>
+              <Stack direction="row" spacing=".5em">
+                {envOptions.map((option) => (
+                  <Chip
+                    key={option}
+                    label={option}
+                    variant={option === selectedEnv ? "filled" : "outlined"}
+                    onClick={() => handleEnv(option)}
+                  />
+                ))}
+              </Stack>
+
+              <Typography variant="h5" component="h2" marginTop={2}>
+                Servers
+              </Typography>
+              <Stack direction="row" spacing=".5em">
+                {SERVER_OPTIONS.map(({ label, value }) => (
+                  <Chip
+                    label={label}
+                    variant={value === selectedServer ? "filled" : "outlined"}
+                    onClick={() => setSelectedServer(value)}
+                  />
+                ))}
+              </Stack>
+            </CardContent>
+          </Card>
         </Stack>
       </Box>
       <List>
@@ -230,25 +234,6 @@ async function getIsOnline(address: string, port: string) {
     return true;
   } catch (err) {
     return false;
-  }
-}
-
-function copyToClipboard(data: string | undefined) {
-  try {
-    if (!data) throw new Error("Erro ao copiar link!");
-    if (typeof navigator.clipboard === "undefined") {
-      const textArea = document.createElement("textarea");
-      textArea.value = data;
-      textArea.style.position = "fixed";
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-    }
-    navigator.clipboard.writeText(data);
-  } catch (err) {
-    console.error(err);
   }
 }
 
