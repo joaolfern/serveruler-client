@@ -114,6 +114,20 @@ export const appTheme = (mode: "light" | "dark") => {
           disableRipple: true,
         },
       },
+      MuiListItem: {
+        styleOverrides: {
+          gutters: {
+            padding: "0 16px",
+          },
+        },
+      },
+      MuiCardContent: {
+        styleOverrides: {
+          root: {
+            padding: "1em",
+          },
+        },
+      },
       MuiButton: {
         defaultProps: {
           disableRipple: true,
