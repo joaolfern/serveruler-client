@@ -22,3 +22,6 @@ dist-ssr
 *.sln
 *.sw?
 public/data.json
+
+# Ignore all content of the root folder database except .git
+database/*
