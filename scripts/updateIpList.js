@@ -99,8 +99,7 @@ async function getFile() {
       }
     );
   } else {
-    await execAsync("cd database");
-    await execAsync(`git pull origin main`);
+    await execAsync("cd database && git pull origin main");
   }
 
   const tableText = await readFileContent("./database/table.ts");
