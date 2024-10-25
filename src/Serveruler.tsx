@@ -42,13 +42,13 @@ export default function Serveruler() {
   return (
     <>
       <Box>
-        <Stack spacing="1em">
+        <Stack spacing=".25em">
           <Card variant="outlined">
             <CardContent>
-              <Typography variant="h5" component="h2">
+              <Typography variant="h6" component="h2">
                 Environment
               </Typography>
-              <Stack direction="row" spacing=".5em">
+              <Stack direction="row" spacing=".5em" marginTop=".25em">
                 {envOptions.map((option) => (
                   <Chip
                     key={option}
@@ -59,10 +59,10 @@ export default function Serveruler() {
                 ))}
               </Stack>
 
-              <Typography variant="h5" component="h2" marginTop={2}>
+              <Typography variant="h6" component="h2" marginTop={1}>
                 Servers
               </Typography>
-              <Stack direction="row" spacing=".5em">
+              <Stack direction="row" spacing=".5em" marginTop=".25em">
                 {SERVER_OPTIONS.map(({ label, value }) => (
                   <Chip
                     label={label}
@@ -122,6 +122,7 @@ const SERVER_OPTIONS = [
   { label: "Core", value: "3000" },
   { label: "Indiky Server", value: "3001" },
   { label: "Shorten", value: "3002" },
+  { label: "Orchestrator", value: "7000" },
   { label: "Indiky Web", value: "4000" },
   { label: "Auto X", value: "4010" },
 ];
