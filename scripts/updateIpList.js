@@ -81,7 +81,7 @@ async function writeDatabase(filePath, content) {
 
 async function getFile() {
   const repoUrl = "git@github.com:AGX-Software/ips.git";
-  const hasClonedRepo = fs.existsSync("./database");
+  const hasClonedRepo = fs.existsSync("./database/table.ts");
 
   if (!hasClonedRepo) {
     await execAsync(
