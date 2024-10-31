@@ -7,7 +7,7 @@ import GitHub from '@mui/icons-material/GitHub';
 export function Header() {
 
   const openGithub = () => {
-    window.open('https://github.com/joaolfern/severuler-client', '_blank');
+    window.open('https://github.com/joaolfern/serveruler-client', '_blank');
   };
 
   return (

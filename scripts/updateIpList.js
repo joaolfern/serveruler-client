@@ -1,5 +1,7 @@
 import { exec } from "child_process";
 import fs from "fs";
+import dotenv from 'dotenv';
+dotenv.config();
 
 function transformToJson(text) {
   const CONST_REGEX = /const IPs: IPs = {[^]*(},}|}})/;
@@ -80,7 +82,11 @@ async function writeDatabase(filePath, content) {
 }
 
 async function getFile() {
-  const repoUrl = "git@github.com:AGX-Software/ips.git";
+  // eslint-disable-next-line no-undef
+  const repoUrl = process.env.REPO_URL;
+
+  if (!repoUrl) throw new Error("REPO_URL is not defined");
+
   const hasClonedRepo = fs.existsSync("./database/table.ts");
 
   if (!hasClonedRepo) {

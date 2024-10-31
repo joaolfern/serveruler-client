@@ -1,30 +1,75 @@
-# React + TypeScript + Vite
+# Local Network IP Inspector
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is a local network IP inspector that helps you manage and monitor IP addresses and services within your local network.
 
-Currently, two official plugins are available:
+## Table of Contents
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [Introduction](#introduction)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Scripts](#scripts)
+- [Configuration](#configuration)
+- [Contributing](#contributing)
+- [License](#license)
 
-## Expanding the ESLint configuration
+## Introduction
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+The Local Network IP Inspector provides a user-friendly interface to view and manage IP addresses and services in your local network. It includes features such as checking the status of services, copying IP addresses to the clipboard, and opening IP addresses in a new window.
 
-- Configure the top-level `parserOptions` property like this:
+## Features
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+- View a list of services and their corresponding IP addresses and ports.
+- Check the online status of services.
+- Copy IP addresses to the clipboard.
+- Open IP addresses in a new browser window.
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+## Installation
+
+1. Clone the repository:
+
+   ```sh
+   git clone https://github.com/yourusername/local-network-ip-inspector.git
+   cd local-network-ip-inspector
+   ```
+
+2. Install dependencies:
+
+   ```sh
+   yarn
+   ```
+
+3. Set up the environment variables:
+   ```sh
+   cp .env.example .env
+   ```
+
+## Usage
+
+1. Start the development server:
+
+   ```sh
+   yarn dev
+   ```
+
+2. Open your browser and navigate to `http://localhost:5173`.
+
+## Scripts
+
+- `npm run dev`: Starts the development server.
+- `npm run build`: Builds the project for production.
+- `npm run preview`: Previews the production build.
+- `npm run update-ip-list`: Updates the IP list from the remote repository.
+
+## Configuration
+
+- **Network Configuration**: Update the network configuration in the `.env` file.
+- **Service Ports**: Modify the service ports in the `database/README.md` file.
+
+## Contributing
+
+Contributions are welcome! Please read the [contributing guidelines](CONTRIBUTING.md) before getting started.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
