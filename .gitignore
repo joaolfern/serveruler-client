@@ -23,5 +23,6 @@ dist-ssr
 *.sw?
 public/data.json
 
+database
 database/*
 .env
