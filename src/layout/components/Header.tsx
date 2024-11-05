@@ -2,12 +2,11 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { Chip, } from '@mui/material'
-import GitHub from '@mui/icons-material/GitHub';
+import { Chip } from "@mui/material";
+import GitHub from "@mui/icons-material/GitHub";
 export function Header() {
-
   const openGithub = () => {
-    window.open('https://github.com/joaolfern/serveruler-client', '_blank');
+    window.open("https://github.com/joaolfern/serveruler-client", "_blank");
   };
 
   return (
@@ -33,7 +32,13 @@ export function Header() {
           >
             Serveruler
           </Typography>
-          <Chip icon={<GitHub  style={{ fontSize: 14, marginLeft: '6px'}} />} label="Github" size='small' variant="outlined"  onClick={() => openGithub()}/>
+          <Chip
+            icon={<GitHub style={{ fontSize: 14, marginLeft: "6px" }} />}
+            label="Github"
+            size="small"
+            variant="outlined"
+            onClick={() => openGithub()}
+          />
         </Toolbar>
       </Container>
     </AppBar>

@@ -29,8 +29,8 @@ The Local Network IP Inspector provides a user-friendly interface to view and ma
 1. Clone the repository:
 
    ```sh
-   git clone https://github.com/yourusername/local-network-ip-inspector.git
-   cd local-network-ip-inspector
+   git clone git@github.com:joaolfern/serveruler-client.git
+   cd serveruler-client
    ```
 
 2. Install dependencies:
@@ -39,36 +39,37 @@ The Local Network IP Inspector provides a user-friendly interface to view and ma
    yarn
    ```
 
-3. Set up the environment variables:
+3. Add `REPO_URL` to the url `.env` file:
+
    ```sh
-   cp .env.example .env
+   echo "REPO_URL=git@github.com:<path>.git" > .env
    ```
 
 ## Usage
 
-1. Start the development server:
+1. Run `yarn ip` to get the lastest ip list from the repository
 
-   ```sh
-   yarn dev
-   ```
+2. Create an optimized build with `yarn build`
 
-2. Open your browser and navigate to `http://localhost:5173`.
+3. Access Serveruler at `http://localhost:5173`.
 
 ## Scripts
 
-- `npm run dev`: Starts the development server.
-- `npm run build`: Builds the project for production.
-- `npm run preview`: Previews the production build.
-- `npm run update-ip-list`: Updates the IP list from the remote repository.
+- `yarn dev`: Starts the development server.
+- `yarn build`: Builds the project for production.
+- `yarn ip`: Updates the IP list from the remote repository.
 
 ## Configuration
 
-- **Network Configuration**: Update the network configuration in the `.env` file.
-- **Service Ports**: Modify the service ports in the `database/README.md` file.
+- `REPO_URL`: This is the URL of the repository from which the IP list will be fetched. You need to set this variable in the `.env` file to point to your repository. For example:
+
+```sh
+  REPO_URL=git@github.com:<path>.git
+```
 
 ## Contributing
 
-Contributions are welcome! Please read the [contributing guidelines](CONTRIBUTING.md) before getting started.
+Contributions are welcome!
 
 ## License
 
