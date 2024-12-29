@@ -5,6 +5,7 @@ import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Layout } from "./layout/Layout";
 import { appTheme } from "./theme/appTheme";
+import { UserDataProvider } from './providers/UserDataProvider'
 
 const Serveruler = lazy(() => import("./Serveruler"));
 
@@ -17,11 +18,13 @@ function App() {
   return (
     <ThemeProvider theme={appTheme(theme)}>
       <CssBaseline />
-      <Layout>
-        <Suspense fallback={<Loader />}>
-          <Serveruler />
-        </Suspense>
-      </Layout>
+      <UserDataProvider>
+        <Layout>
+            <Suspense fallback={<Loader />}>
+              <Serveruler />
+            </Suspense>
+        </Layout>
+      </UserDataProvider>
     </ThemeProvider>
   );
 }
