@@ -39,10 +39,10 @@ The Local Network IP Inspector provides a user-friendly interface to view and ma
    yarn
    ```
 
-3. Add `REPO_URL` to the url `.env` file:
+3. Add `REPO_URL` to the url `.env` file, ex:
 
    ```sh
-   echo "REPO_URL=git@github.com:<path>.git" > .env
+   echo "REPO_URL=git@github.com:AGX-Software/ips.git" > .env
    ```
 
 ## Usage
