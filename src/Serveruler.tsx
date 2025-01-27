@@ -17,27 +17,33 @@ import CopyIcon from "@mui/icons-material/ContentCopy";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { ButtonBase } from "@mui/material";
 import { copyToClipboard } from "./utils/copyToClipboard";
-import { SERVER_OPTIONS } from './constants'
-import { useUserData } from './hooks/useIps'
+import { SERVER_OPTIONS } from "./constants";
+import { useUserData } from "./hooks/useIps";
+import { convertMultipleOption } from "./utils/convertMultipleOptions";
 
 export default function Serveruler() {
-  const { data, selectedEnv, selectedServer, setSelectedServer } = useUserData();
+  const { data, selectedEnv, selectedServer, setSelectedServer } =
+    useUserData();
 
   return (
     <>
       <Box>
         <div>
-          <Typography variant="subtitle1" component="h2" fontWeight='600'>
+          <Typography variant="subtitle1" component="h2" fontWeight="600">
             Servers
           </Typography>
           <Stack direction="row" spacing=".5em" marginTop=".25em">
-            {SERVER_OPTIONS.map(({ label, value }) => (
-              <Chip
-                label={label}
-                variant={value === selectedServer ? "filled" : "outlined"}
-                onClick={() => setSelectedServer(value)}
-              />
-            ))}
+            {SERVER_OPTIONS.map(({ label, value }) => {
+              const formattedValue = convertMultipleOption(value);
+
+              return (
+                <Chip
+                  label={label}
+                  variant={formattedValue === convertMultipleOption(selectedServer) ? "filled" : "outlined"}
+                  onClick={() => setSelectedServer(value)}
+                />
+              );
+            })}
           </Stack>
         </div>
       </Box>
@@ -62,7 +68,7 @@ interface IUserProps {
   user: string;
   data: Record<string, string>;
   selectedEnv: string;
-  selectedServer: string;
+  selectedServer: string | string[];
 }
 
 enum Status {
@@ -89,13 +95,18 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
 
   function copy() {
     const ip = getCompleteAddress(address, selectedServer);
-    copyToClipboard(ip);
+
+    const formattedIp = Array.isArray(ip) ? ip.join(", ") : ip;
+
+    copyToClipboard(formattedIp);
   }
 
   function openInNewWindow() {
     const ip = getCompleteAddress(address, selectedServer);
 
-    window.open(ip, "_target");
+    const ipArray = Array.isArray(ip) ? ip : [ip];
+
+    ipArray.forEach((ip) => window.open(ip, "_blank"));
   }
 
   return (
@@ -132,12 +143,21 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
   );
 }
 
-async function getIsOnline(address: string, port: string) {
+async function getIsOnline(address: string, selectedServer: string | string[]) {
   try {
-    await fetch(getCompleteAddress(address, port), {
-      signal: AbortSignal.timeout(80000),
-      mode: "no-cors",
-    });
+    const completeAddress = getCompleteAddress(address, selectedServer);
+    const request = Array.isArray(completeAddress)
+      ? completeAddress
+      : [completeAddress];
+
+    const promises = request.map((ip) =>
+      fetch(ip, {
+        signal: AbortSignal.timeout(80000),
+        mode: "no-cors",
+      })
+    );
+
+    await Promise.all(promises);
 
     return true;
   } catch (err) {
@@ -145,8 +165,17 @@ async function getIsOnline(address: string, port: string) {
   }
 }
 
-function getCompleteAddress(address: string, port: string) {
-  const ip = `http://${address}:${port}`;
+function createCompleteAddressString(address: string, port: string) {
+  return `http://${address}:${port}`;
+}
+
+function getCompleteAddress(address: string, port: string | string[]) {
+  if (Array.isArray(port)) {
+    const ip = port.map((p) => createCompleteAddressString(address, p));
+    return ip;
+  }
+
+  const ip = createCompleteAddressString(address, port);
 
   return ip;
 }

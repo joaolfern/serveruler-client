@@ -12,7 +12,6 @@ import { SelectEnv } from './SelectEnv'
 export function Header() {
   const { envOptions, selectedEnv, setSelectedEnv } = useUserData();
 
-
   return (
     <AppBar position="static">
       <Container maxWidth="lg">

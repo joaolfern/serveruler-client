@@ -1,6 +1,6 @@
-import { ReactNode, createContext, useEffect, useState } from 'react';
-import { getIsCompanyDay } from '../utils/getIsCompanyDay';
-import { SERVER_OPTIONS } from '../constants';
+import { ReactNode, createContext, useEffect, useState } from "react";
+import { getIsCompanyDay } from "../utils/getIsCompanyDay";
+import { SERVER_OPTIONS } from "../constants";
 
 type Data = Record<string, Record<string, string>>;
 
@@ -8,18 +8,22 @@ interface UserDataContextProps {
   data: Data;
   envOptions: string[];
   selectedEnv: string;
-  selectedServer: string;
+  selectedServer: string | string[];
   setSelectedEnv: (env: string) => void;
-  setSelectedServer: (server: string) => void;
+  setSelectedServer: (server: string | string[]) => void;
 }
 
-export const UserDataContext = createContext<UserDataContextProps | undefined>(undefined);
+export const UserDataContext = createContext<UserDataContextProps | undefined>(
+  undefined
+);
 
-export function UserDataProvider ({ children }: { children: ReactNode }) {
+export function UserDataProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<Data>({});
   const [envOptions, setEnvOptions] = useState<string[]>([]);
-  const [selectedEnv, setSelectedEnv] = useState<string>('');
-  const [selectedServer, setSelectedServer] = useState<string>(SERVER_OPTIONS[0].value);
+  const [selectedEnv, setSelectedEnv] = useState<string>("");
+  const [selectedServer, setSelectedServer] = useState<string | string[]>(
+    () => SERVER_OPTIONS[0].value
+  );
 
   useEffect(() => {
     async function updateData() {

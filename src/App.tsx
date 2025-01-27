@@ -20,9 +20,9 @@ function App() {
       <CssBaseline />
       <UserDataProvider>
         <Layout>
-            <Suspense fallback={<Loader />}>
-              <Serveruler />
-            </Suspense>
+          <Suspense fallback={<Loader />}>
+            <Serveruler />
+          </Suspense>
         </Layout>
       </UserDataProvider>
     </ThemeProvider>
