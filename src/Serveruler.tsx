@@ -121,26 +121,28 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
           </Stack>
         </CardContent>
         <CardActions>
-          <Grid
-            container
-            gap={2}
+          <Box
             sx={{
-              justifyContent: 'space-between',
-              alignItems: 'flex-start'
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: 1
             }}
           >
-            {SERVER_OPTIONS.map(({ label }) => (
-              <Grid item key={label}>
-                <Chip
-                  label={label}
-                  variant={chipVariants[label] || 'outlined'}
-                  color={statusColor}
-                  onMouseEnter={() => handleVariant(label, true)}
-                  onMouseLeave={() => handleVariant(label, false)}
-                />
-              </Grid>
+            {SERVER_OPTIONS.map(({ label, value }) => (
+              <Chip
+                key={label}
+                label={chipVariants[label] === 'filled' ? value : label}
+                variant={chipVariants[label] || 'outlined'}
+                color={statusColor}
+                onMouseEnter={() => handleVariant(label, true)}
+                onMouseLeave={() => handleVariant(label, false)}
+                sx={{
+                  width: '100%',
+                  textAlign: 'center'
+                }}
+              />
             ))}
-          </Grid>
+          </Box>
         </CardActions>
       </Card>
     )
