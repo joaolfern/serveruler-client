@@ -86,25 +86,65 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
 
     ipArray.forEach((ip) => window.open(ip, '_blank'))
   }
+  const statusColor = useMemo(() => {
+    if (status === Status.loading) return 'default'
+    if (status === Status.on) return 'success'
+    return 'error'
+  }, [status])
 
-  const isnew = true
-  if (isnew)
+  const [chipVariants, setChipVariants] = useState<
+    Record<string, 'filled' | 'outlined'>
+  >({})
+
+  function handleVariant(label: string, isFilled: boolean) {
+    setChipVariants((prev) => ({
+      ...prev,
+      [label]: isFilled ? 'filled' : 'outlined'
+    }))
+  }
+
+  const newOption = true
+  if (newOption) {
     return (
-      <Card sx={{ maxWidth: 275 }}>
-        <CardContent>{user}</CardContent>
+      <Card sx={{ maxWidth: 275, mb: 2 }}>
+        <CardContent>
+          <Stack
+            direction='row'
+            sx={{
+              width: '100%',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <span>{user}</span>
+            <span>{address}</span>
+          </Stack>
+        </CardContent>
         <CardActions>
-          <Grid container gap={2}>
-            {SERVER_OPTIONS.map(({ label }) => {
-              return (
-                <Grid spacing={2}>
-                  <Chip label={label} variant={'outlined'} />
-                </Grid>
-              )
-            })}
+          <Grid
+            container
+            gap={2}
+            sx={{
+              justifyContent: 'space-between',
+              alignItems: 'flex-start'
+            }}
+          >
+            {SERVER_OPTIONS.map(({ label }) => (
+              <Grid item key={label}>
+                <Chip
+                  label={label}
+                  variant={chipVariants[label] || 'outlined'}
+                  color={statusColor}
+                  onMouseEnter={() => handleVariant(label, true)}
+                  onMouseLeave={() => handleVariant(label, false)}
+                />
+              </Grid>
+            ))}
           </Grid>
         </CardActions>
       </Card>
     )
+  }
 
   return (
     <ListItem
