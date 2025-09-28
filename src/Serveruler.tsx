@@ -105,7 +105,7 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
           URL copiada com sucesso!
         </Alert>
       </Snackbar>
-      <Card sx={{ maxWidth: 275, mb: 2 }}>
+      <Card sx={{ maxWidth: 275, mb: 2, pb: 1 }}>
         <CardContent>
           <Stack
             direction='row'
@@ -116,7 +116,7 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
             }}
           >
             <span>{user}</span>
-            <span>{address}</span>
+            <span onClick={() => copy(address)}>{address}</span>
           </Stack>
         </CardContent>
         <CardActions>
