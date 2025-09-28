@@ -9,5 +9,5 @@ export const SERVER_OPTIONS: Array<IServerOption> = [
 
 interface IServerOption {
   label: string
-  value: string | string[]
+  value: string
 }

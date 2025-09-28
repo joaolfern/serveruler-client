@@ -1,19 +1,12 @@
-import CloudIcon from '@mui/icons-material/Cloud'
-import CloudOffIcon from '@mui/icons-material/CloudOff'
-import CopyIcon from '@mui/icons-material/ContentCopy'
-import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import {
+  Alert,
   Box,
-  ButtonBase,
   Card,
   CardActions,
   CardContent,
   Chip,
-  CircularProgress,
   Grid,
-  IconButton,
-  ListItem,
-  ListItemText,
+  Snackbar,
   Stack
 } from '@mui/material'
 import { useEffect, useMemo, useState } from 'react'
@@ -57,10 +50,13 @@ enum Status {
 
 function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
   const [status, setStatus] = useState<Status>(Status.loading)
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+
   const address = useMemo(() => {
     return data[selectedEnv]
   }, [data, selectedEnv])
 
+  // TODO: COLOCAR NO HEADER
   async function updateStatus() {
     setStatus(Status.loading)
     const isOnline = await getIsOnline(address, selectedServer)
@@ -71,23 +67,17 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
     if (address) updateStatus()
   }, [selectedEnv, selectedServer, data, address])
 
-  function copy() {
+  function copy(selectedServer: string) {
     const ip = getCompleteAddress(address, selectedServer)
 
     const formattedIp = Array.isArray(ip) ? ip.join(', ') : ip
 
     copyToClipboard(formattedIp)
+    setSnackbarOpen(true)
   }
 
-  function openInNewWindow() {
-    const ip = getCompleteAddress(address, selectedServer)
-
-    const ipArray = Array.isArray(ip) ? ip : [ip]
-
-    ipArray.forEach((ip) => window.open(ip, '_blank'))
-  }
   const statusColor = useMemo(() => {
-    if (status === Status.loading) return 'default'
+    if (status === Status.loading) return 'warning'
     if (status === Status.on) return 'success'
     return 'error'
   }, [status])
@@ -103,9 +93,18 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
     }))
   }
 
-  const newOption = true
-  if (newOption) {
-    return (
+  return (
+    <>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={2000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert severity='success' sx={{ width: '100%' }}>
+          URL copiada com sucesso!
+        </Alert>
+      </Snackbar>
       <Card sx={{ maxWidth: 275, mb: 2 }}>
         <CardContent>
           <Stack
@@ -134,6 +133,7 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
                 label={chipVariants[label] === 'filled' ? value : label}
                 variant={chipVariants[label] || 'outlined'}
                 color={statusColor}
+                onClick={() => copy(value)}
                 onMouseEnter={() => handleVariant(label, true)}
                 onMouseLeave={() => handleVariant(label, false)}
                 sx={{
@@ -145,40 +145,7 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
           </Box>
         </CardActions>
       </Card>
-    )
-  }
-
-  return (
-    <ListItem
-      secondaryAction={
-        <Stack direction='row' spacing='.5em'>
-          <IconButton onClick={openInNewWindow}>
-            <OpenInNewIcon />
-          </IconButton>
-          <IconButton onClick={copy}>
-            <CopyIcon />
-          </IconButton>
-          <IconButton onClick={updateStatus}>
-            {status === Status.loading ? (
-              <CircularProgress size='1em' />
-            ) : status === Status.on ? (
-              <CloudIcon color='success' />
-            ) : (
-              <CloudOffIcon color='error' />
-            )}
-          </IconButton>
-        </Stack>
-      }
-    >
-      <ListItemText
-        primary={user}
-        secondary={
-          <ButtonBase onClick={() => copyToClipboard(data[selectedEnv])}>
-            {data[selectedEnv]}
-          </ButtonBase>
-        }
-      />
-    </ListItem>
+    </>
   )
 }
 
