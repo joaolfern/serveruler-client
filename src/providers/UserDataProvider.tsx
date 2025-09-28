@@ -1,6 +1,5 @@
 import { ReactNode, createContext, useEffect, useState } from 'react'
-import { SERVER_OPTIONS } from '../constants'
-import { getIsCompanyDay } from '../utils/getIsCompanyDay'
+import { COMPANY_DAYS, SERVER_OPTIONS } from '../constants'
 
 type Data = Record<string, Record<string, string>>
 
@@ -84,7 +83,8 @@ function getAvailableEnvs(data: Data): string[] {
 }
 
 function getInitialEnvOptionIndex() {
-  const isCompanyDay = getIsCompanyDay()
+  const weekDay = new Date().getDay()
+  const isCompanyDay = COMPANY_DAYS.includes(weekDay)
   const initialOptionIndex = isCompanyDay ? 0 : 1
   return initialOptionIndex
 }
