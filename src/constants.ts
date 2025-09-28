@@ -1,3 +1,8 @@
+interface IServerOption {
+  label: string
+  value: string
+}
+
 export const SERVER_OPTIONS: Array<IServerOption> = [
   { label: 'Core', value: '3000' },
   { label: 'Indiky Server', value: '3001' },
@@ -7,7 +12,4 @@ export const SERVER_OPTIONS: Array<IServerOption> = [
   { label: 'Auto X', value: '4010' }
 ]
 
-interface IServerOption {
-  label: string
-  value: string
-}
+export const COMPANY_DAYS = [0, 1, 3, 5, 6]
