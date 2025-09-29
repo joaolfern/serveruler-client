@@ -23,7 +23,6 @@ export function SelectEnv({
           boxShadow: 'none',
           '.MuiOutlinedInput-notchedOutline': { border: 0 }
         }}
-        disableUnderline
         key={selectedEnv}
         size='small'
         value={selectedEnv}
