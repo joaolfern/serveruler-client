@@ -6,6 +6,7 @@ import {
   CardContent,
   Chip,
   Grid,
+  Skeleton,
   Snackbar,
   Stack
 } from '@mui/material'
@@ -123,25 +124,28 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
           <Grid
             container
             sx={{
+              justifyContent: 'center',
+              alignItems: 'center',
               width: '100%',
               gridAutoColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
               gap: 1
             }}
           >
             {SERVER_OPTIONS.map(({ label, value }) => (
-              <Chip
-                key={label}
-                label={chipVariants[label] === 'filled' ? value : label}
-                variant={chipVariants[label] || 'outlined'}
-                color={statusColor}
-                onClick={() => copy(value)}
-                onMouseEnter={() => handleVariant(label, true)}
-                onMouseLeave={() => handleVariant(label, false)}
-                sx={{
-                  width: '100%',
-                  maxWidth: 120
-                }}
-              />
+              <LoadingWrapper status={status} key={label}>
+                <Chip
+                  label={chipVariants[label] === 'filled' ? value : label}
+                  variant={chipVariants[label] || 'outlined'}
+                  color={statusColor}
+                  onClick={() => copy(value)}
+                  onMouseEnter={() => handleVariant(label, true)}
+                  onMouseLeave={() => handleVariant(label, false)}
+                  sx={{
+                    width: '100%',
+                    maxWidth: 120
+                  }}
+                />
+              </LoadingWrapper>
             ))}
           </Grid>
         </CardActions>
@@ -185,4 +189,24 @@ function getCompleteAddress(address: string, port: string | string[]) {
   const ip = createCompleteAddressString(address, port)
 
   return ip
+}
+
+function LoadingWrapper({
+  status,
+  children
+}: {
+  status: Status
+  children: React.ReactNode
+}) {
+  if (status === Status.loading) {
+    return (
+      <Skeleton
+        variant='rectangular'
+        width={120}
+        height={30}
+        sx={{ borderRadius: 16 }}
+      />
+    )
+  }
+  return children
 }
