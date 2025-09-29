@@ -105,7 +105,7 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
           URL copiada com sucesso!
         </Alert>
       </Snackbar>
-      <Card sx={{ maxWidth: 275, mb: 2, pb: 1 }}>
+      <Card sx={{ maxWidth: 275, pb: 1 }}>
         <CardContent>
           <Stack
             direction='row'
@@ -120,10 +120,11 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
           </Stack>
         </CardContent>
         <CardActions>
-          <Box
+          <Grid
+            container
             sx={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
+              width: '100%',
+              gridAutoColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
               gap: 1
             }}
           >
@@ -138,11 +139,11 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
                 onMouseLeave={() => handleVariant(label, false)}
                 sx={{
                   width: '100%',
-                  textAlign: 'center'
+                  maxWidth: 120
                 }}
               />
             ))}
-          </Box>
+          </Grid>
         </CardActions>
       </Card>
     </>
