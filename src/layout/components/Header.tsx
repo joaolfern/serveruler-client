@@ -43,8 +43,8 @@ export function Header() {
             </IconButton>
             <SelectEnv
               envOptions={envOptions}
-              handleEnv={setSelectedEnv}
               selectedEnv={selectedEnv}
+              handleEnv={setSelectedEnv}
             />
             <Chip
               icon={<GitHub style={{ fontSize: 18, marginLeft: '10px' }} />}
