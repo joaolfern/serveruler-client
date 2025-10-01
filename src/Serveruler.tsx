@@ -10,10 +10,12 @@ import {
   Snackbar,
   Stack
 } from '@mui/material'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { SERVER_OPTIONS } from './constants'
 import { useUserData } from './hooks/useIps'
 import { copyToClipboard } from './utils/copyToClipboard'
+import { getCompleteAddress } from './utils/getCompleteAddress'
+import { getIsOnline } from './utils/getIsOnline'
 
 export default function Serveruler() {
   const { data, selectedEnv, selectedServer } = useUserData()
@@ -21,63 +23,58 @@ export default function Serveruler() {
   return (
     <Box sx={{ pt: 2 }}>
       <Grid container gap={2}>
-        {Object.entries(data).map(([user, data]) => (
-          <Grid key={user + selectedServer + selectedEnv}>
-            <User
-              user={user}
-              data={data}
-              selectedEnv={selectedEnv}
-              selectedServer={selectedServer}
-            />
-          </Grid>
-        ))}
+        {Object.entries(data).map(([user, userData]) => {
+          const address = userData[selectedEnv]
+          if (!address) return
+          return (
+            <Grid key={user + selectedServer + selectedEnv}>
+              <User address={address} user={user} />
+            </Grid>
+          )
+        })}
       </Grid>
     </Box>
   )
 }
 
 interface IUserProps {
+  address: string
   user: string
-  data: Record<string, string>
-  selectedEnv: string
-  selectedServer: string | string[]
 }
 
-function User({ data, user, selectedEnv }: IUserProps) {
-  const [status, setStatus] = useState<Record<string, boolean>>()
-  const [snackbarOpen, setSnackbarOpen] = useState(false)
-
-  const address = useMemo(() => {
-    return data[selectedEnv]
-  }, [data, selectedEnv])
-
-  async function updateStatus() {
-    setStatus(undefined)
-    const isOnlineByAddress = await getIsOnline(address)
-    setStatus(isOnlineByAddress)
-  }
-
-  useEffect(() => {
-    if (address) updateStatus()
-  }, [selectedEnv, data, address])
-
-  function copy(selectedServer: string) {
-    const ip = getCompleteAddress(address, selectedServer)
-
-    const formattedIp = Array.isArray(ip) ? ip.join(', ') : ip
-
-    copyToClipboard(formattedIp)
-    setSnackbarOpen(true)
-  }
-
-  function statusColor(currentConnectionStatus: boolean | undefined) {
-    if (currentConnectionStatus) return 'success'
-    return 'error'
-  }
-
+function User({ address, user }: IUserProps) {
+  const [status, setStatus] = useState<Record<string, boolean>>({})
+  const [isLoading, setIsLoading] = useState(false)
   const [chipVariants, setChipVariants] = useState<
     Record<string, 'filled' | 'outlined'>
   >({})
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    async function updateStatus() {
+      setIsLoading(true)
+      const isOnlineByAddress = await getIsOnline(address)
+      if (!cancelled) {
+        setStatus(isOnlineByAddress)
+        setIsLoading(false)
+      }
+    }
+    updateStatus()
+    return () => {
+      cancelled = true
+    }
+  }, [address])
+
+  const copy = useCallback(
+    (selectedServer: string) => {
+      const ip = getCompleteAddress(address, selectedServer)
+      const formattedIp = Array.isArray(ip) ? ip.join(', ') : ip
+      copyToClipboard(formattedIp)
+      setSnackbarOpen(true)
+    },
+    [address]
+  )
 
   function handleVariant(label: string, isFilled: boolean) {
     setChipVariants((prev) => ({
@@ -85,6 +82,15 @@ function User({ data, user, selectedEnv }: IUserProps) {
       [label]: isFilled ? 'filled' : 'outlined'
     }))
   }
+
+  const statusByPort = useMemo(() => {
+    const result: Record<string, boolean> = {}
+    Object.entries(status).forEach(([addr, online]) => {
+      const port = addr.split(':').pop()
+      if (port) result[port] = online
+    })
+    return result
+  }, [status])
 
   return (
     <>
@@ -98,6 +104,7 @@ function User({ data, user, selectedEnv }: IUserProps) {
           URL copiada com sucesso!
         </Alert>
       </Snackbar>
+
       <Card sx={{ maxWidth: 275, pb: 1 }}>
         <CardContent>
           <Stack
@@ -109,7 +116,7 @@ function User({ data, user, selectedEnv }: IUserProps) {
             }}
           >
             <span>{user}</span>
-            <span onClick={() => copy(address)}>{address}</span>
+            <span>{address}</span>
           </Stack>
         </CardContent>
         <CardActions>
@@ -124,18 +131,16 @@ function User({ data, user, selectedEnv }: IUserProps) {
             }}
           >
             {SERVER_OPTIONS.map(({ label, value }) => {
-              const currentConnectionStatus = status
-                ? Object.entries(status).find(([addr]) =>
-                    addr.endsWith(`:${value}`)
-                  )?.[1]
-                : undefined
+              const formattedLabel =
+                chipVariants[label] === 'filled' ? value : label
+              const currentConnectionStatus = statusByPort[value]
 
               return (
-                <LoadingWrapper status={currentConnectionStatus} key={label}>
+                <LoadingWrapper key={label} loading={isLoading}>
                   <Chip
-                    label={chipVariants[label] === 'filled' ? value : label}
+                    label={formattedLabel}
                     variant={chipVariants[label] || 'outlined'}
-                    color={statusColor(currentConnectionStatus)}
+                    color={currentConnectionStatus ? 'success' : 'error'}
                     onClick={() => copy(value)}
                     onMouseEnter={() => handleVariant(label, true)}
                     onMouseLeave={() => handleVariant(label, false)}
@@ -154,55 +159,14 @@ function User({ data, user, selectedEnv }: IUserProps) {
   )
 }
 
-async function getIsOnline(address: string) {
-  const completeAddress = getCompleteAddress(address)
-  const addresses = Array.isArray(completeAddress)
-    ? completeAddress
-    : [completeAddress]
-
-  const results = await Promise.allSettled(
-    addresses.map(async (ip) => {
-      const res = await fetch(ip, { signal: AbortSignal.timeout(5000) })
-      return res.ok
-    })
-  )
-
-  const statusByAddress: Record<string, boolean> = {}
-  results.forEach((result, idx) => {
-    const ip = addresses[idx]
-    if (result.status === 'fulfilled' && result.value === true) {
-      statusByAddress[ip] = true
-    } else {
-      statusByAddress[ip] = false
-    }
-  })
-
-  return statusByAddress
-}
-
-function getCompleteAddress(address: string, selectedPort?: string) {
-  if (selectedPort) {
-    return `http://${address}:${selectedPort}`
-  }
-
-  const ips: string[] = []
-  SERVER_OPTIONS.map((option) => {
-    const port = option.value
-    const ip = `http://${address}:${port}`
-    ips.push(ip)
-  })
-
-  return ips
-}
-
 function LoadingWrapper({
-  status,
+  loading,
   children
 }: {
-  status: boolean | undefined
+  loading: boolean
   children: React.ReactNode
 }) {
-  if (status === undefined) {
+  if (loading) {
     return (
       <Skeleton
         variant='rectangular'
