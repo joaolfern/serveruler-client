@@ -1,181 +1,180 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
 import {
+  Alert,
   Box,
+  Card,
+  CardActions,
+  CardContent,
   Chip,
-  CircularProgress,
-  Divider,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  Stack,
-  Typography,
-} from "@mui/material";
-import CloudIcon from "@mui/icons-material/Cloud";
-import CloudOffIcon from "@mui/icons-material/CloudOff";
-import CopyIcon from "@mui/icons-material/ContentCopy";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
-import { ButtonBase } from "@mui/material";
-import { copyToClipboard } from "./utils/copyToClipboard";
-import { SERVER_OPTIONS } from "./constants";
-import { useUserData } from "./hooks/useIps";
-import { convertMultipleOption } from "./utils/convertMultipleOptions";
+  Grid,
+  Skeleton,
+  Snackbar,
+  Stack
+} from '@mui/material'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { SERVER_OPTIONS } from './constants'
+import { useUserData } from './hooks/useIps'
+import { copyToClipboard } from './utils/copyToClipboard'
+import { getCompleteAddress } from './utils/getCompleteAddress'
+import { getIsOnline } from './utils/getIsOnline'
 
 export default function Serveruler() {
-  const { data, selectedEnv, selectedServer, setSelectedServer } =
-    useUserData();
+  const { data, selectedEnv } = useUserData()
 
   return (
-    <>
-      <Box>
-        <div>
-          <Typography variant="subtitle1" component="h2" fontWeight="600">
-            Servers
-          </Typography>
-          <Stack direction="row" spacing=".5em" marginTop=".25em">
-            {SERVER_OPTIONS.map(({ label, value }) => {
-              const formattedValue = convertMultipleOption(value);
-
-              return (
-                <Chip
-                  label={label}
-                  variant={formattedValue === convertMultipleOption(selectedServer) ? "filled" : "outlined"}
-                  onClick={() => setSelectedServer(value)}
-                />
-              );
-            })}
-          </Stack>
-        </div>
-      </Box>
-      <List>
-        {Object.entries(data).map(([user, data]) => (
-          <Fragment key={user + selectedServer + selectedEnv}>
-            <User
-              user={user}
-              data={data}
-              selectedEnv={selectedEnv}
-              selectedServer={selectedServer}
-            />
-            <Divider variant="inset" component="li" />
-          </Fragment>
-        ))}
-      </List>
-    </>
-  );
+    <Box sx={{ pt: 2 }}>
+      <Grid container gap={2}>
+        {Object.entries(data).map(([user, userData]) => {
+          const address = userData[selectedEnv]
+          if (!address) return
+          return (
+            <Grid key={user + selectedEnv}>
+              <User address={address} user={user} />
+            </Grid>
+          )
+        })}
+      </Grid>
+    </Box>
+  )
 }
 
 interface IUserProps {
-  user: string;
-  data: Record<string, string>;
-  selectedEnv: string;
-  selectedServer: string | string[];
+  address: string
+  user: string
 }
 
-enum Status {
-  "on" = "on",
-  "off" = "off",
-  "loading" = "loading",
-}
-
-function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
-  const [status, setStatus] = useState<Status>(Status.loading);
-  const address = useMemo(() => {
-    return data[selectedEnv];
-  }, [data, selectedEnv]);
-
-  async function updateStatus() {
-    setStatus(Status.loading);
-    const isOnline = await getIsOnline(address, selectedServer);
-    setStatus(isOnline ? Status.on : Status.off);
-  }
+function User({ address, user }: IUserProps) {
+  const [status, setStatus] = useState<Record<string, boolean>>({})
+  const [isLoading, setIsLoading] = useState(false)
+  const [chipVariants, setChipVariants] = useState<
+    Record<string, 'filled' | 'outlined'>
+  >({})
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
 
   useEffect(() => {
-    if (address) updateStatus();
-  }, [selectedEnv, selectedServer, data, address]);
+    let cancelled = false
+    async function updateStatus() {
+      setIsLoading(true)
+      const isOnlineByAddress = await getIsOnline(address)
+      if (!cancelled) {
+        setStatus(isOnlineByAddress)
+        setIsLoading(false)
+      }
+    }
+    updateStatus()
+    return () => {
+      cancelled = true
+    }
+  }, [address])
 
-  function copy() {
-    const ip = getCompleteAddress(address, selectedServer);
+  const copy = useCallback(
+    (selectedServer: string) => {
+      const ip = getCompleteAddress(address, selectedServer)
+      const formattedIp = Array.isArray(ip) ? ip.join(', ') : ip
+      copyToClipboard(formattedIp)
+      setSnackbarOpen(true)
+    },
+    [address]
+  )
 
-    const formattedIp = Array.isArray(ip) ? ip.join(", ") : ip;
-
-    copyToClipboard(formattedIp);
+  function handleVariant(label: string, isFilled: boolean) {
+    setChipVariants((prev) => ({
+      ...prev,
+      [label]: isFilled ? 'filled' : 'outlined'
+    }))
   }
 
-  function openInNewWindow() {
-    const ip = getCompleteAddress(address, selectedServer);
-
-    const ipArray = Array.isArray(ip) ? ip : [ip];
-
-    ipArray.forEach((ip) => window.open(ip, "_blank"));
-  }
+  const statusByPort = useMemo(() => {
+    const result: Record<string, boolean> = {}
+    Object.entries(status).forEach(([addr, online]) => {
+      const port = addr.split(':').pop()
+      if (port) result[port] = online
+    })
+    return result
+  }, [status])
 
   return (
-    <ListItem
-      secondaryAction={
-        <Stack direction="row" spacing=".5em">
-          <IconButton onClick={openInNewWindow}>
-            <OpenInNewIcon />
-          </IconButton>
-          <IconButton onClick={copy}>
-            <CopyIcon />
-          </IconButton>
-          <IconButton onClick={updateStatus}>
-            {status === Status.loading ? (
-              <CircularProgress size="1em" />
-            ) : status === Status.on ? (
-              <CloudIcon color="success" />
-            ) : (
-              <CloudOffIcon color="error" />
-            )}
-          </IconButton>
-        </Stack>
-      }
-    >
-      <ListItemText
-        primary={user}
-        secondary={
-          <ButtonBase onClick={() => copyToClipboard(data[selectedEnv])}>
-            {data[selectedEnv]}
-          </ButtonBase>
-        }
+    <>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={750}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert severity='success' sx={{ width: '100%' }}>
+          URL copiada com sucesso!
+        </Alert>
+      </Snackbar>
+
+      <Card sx={{ maxWidth: 275, pb: 1 }}>
+        <CardContent>
+          <Stack
+            direction='row'
+            sx={{
+              width: '100%',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <span>{user}</span>
+            <span>{address}</span>
+          </Stack>
+        </CardContent>
+        <CardActions>
+          <Grid
+            container
+            sx={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%',
+              gridAutoColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+              gap: 1
+            }}
+          >
+            {SERVER_OPTIONS.map(({ label, value }) => {
+              const formattedLabel =
+                chipVariants[label] === 'filled' ? value : label
+              const currentConnectionStatus = statusByPort[value]
+
+              return (
+                <LoadingWrapper key={label} loading={isLoading}>
+                  <Chip
+                    label={formattedLabel}
+                    variant={chipVariants[label] || 'outlined'}
+                    color={currentConnectionStatus ? 'success' : 'error'}
+                    onClick={() => copy(value)}
+                    onMouseEnter={() => handleVariant(label, true)}
+                    onMouseLeave={() => handleVariant(label, false)}
+                    sx={{
+                      width: '100%',
+                      maxWidth: 120
+                    }}
+                  />
+                </LoadingWrapper>
+              )
+            })}
+          </Grid>
+        </CardActions>
+      </Card>
+    </>
+  )
+}
+
+function LoadingWrapper({
+  loading,
+  children
+}: {
+  loading: boolean
+  children: React.ReactNode
+}) {
+  if (loading) {
+    return (
+      <Skeleton
+        variant='rectangular'
+        width={120}
+        height={30}
+        sx={{ borderRadius: 16 }}
       />
-    </ListItem>
-  );
-}
-
-async function getIsOnline(address: string, selectedServer: string | string[]) {
-  try {
-    const completeAddress = getCompleteAddress(address, selectedServer);
-    const request = Array.isArray(completeAddress)
-      ? completeAddress
-      : [completeAddress];
-
-    const promises = request.map((ip) =>
-      fetch(ip, {
-        signal: AbortSignal.timeout(80000),
-        mode: "no-cors",
-      })
-    );
-
-    await Promise.all(promises);
-
-    return true;
-  } catch (err) {
-    return false;
+    )
   }
-}
-
-function createCompleteAddressString(address: string, port: string) {
-  return `http://${address}:${port}`;
-}
-
-function getCompleteAddress(address: string, port: string | string[]) {
-  if (Array.isArray(port)) {
-    const ip = port.map((p) => createCompleteAddressString(address, p));
-    return ip;
-  }
-
-  const ip = createCompleteAddressString(address, port);
-
-  return ip;
+  return children
 }

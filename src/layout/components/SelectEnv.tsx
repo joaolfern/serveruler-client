@@ -1,45 +1,56 @@
+import Business from '@mui/icons-material/Business'
+import Home from '@mui/icons-material/Home'
+import Public from '@mui/icons-material/Public'
+import Smartphone from '@mui/icons-material/Smartphone'
 import { Box, MenuItem, Select, Stack } from '@mui/material'
-import Computer from "@mui/icons-material/Computer";
+import { useUserData } from '../../hooks/useIps'
 
-interface ISelectEnvProps {
-  selectedEnv: string
-  handleEnv: (env: string) => void
-  envOptions: string[]
-}
+export function SelectEnv() {
+  const { envOptions, selectedEnv, setSelectedEnv } = useUserData()
 
-export function SelectEnv ({ envOptions, handleEnv, selectedEnv }: ISelectEnvProps) {
   return (
-    <Stack
-      direction='row'
-      spacing={1}
-    >
+    <Stack direction='row' spacing={1}>
       <Select
-        sx={{ boxShadow: 'none', '.MuiOutlinedInput-notchedOutline': { border: 0 } }}
-        disableUnderline={true}
+        sx={{
+          boxShadow: 'none',
+          '.MuiOutlinedInput-notchedOutline': { border: 0 }
+        }}
         key={selectedEnv}
         size='small'
         value={selectedEnv}
-        onChange={(e) => handleEnv(e.target.value)}
-        defaultValue={selectedEnv}
-        renderValue={(value) => {
-          return (
-            <Box sx={{ display: "flex", gap: 1 }}>
-              <Computer />
-              {value}
-            </Box>
-          );
-        }}
+        onChange={(e) => setSelectedEnv(e.target.value)}
+        renderValue={(option) => <Item option={option} />}
       >
         {envOptions.map((option) => (
-          <MenuItem
-            key={option}
-            value={option}
-          >
-            {option}
+          <MenuItem key={option} value={option}>
+            <Item option={option} />
           </MenuItem>
         ))}
       </Select>
     </Stack>
+  )
+}
 
+function Item({ option }: { option: string }) {
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'empresa':
+        return <Business />
+      case 'externalEmpresa':
+        return <Public />
+      case 'casa':
+        return <Home />
+      case 'celular':
+        return <Smartphone />
+      default:
+        return null
+    }
+  }
+
+  return (
+    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+      {getIcon(option)}
+      {option}
+    </Box>
   )
 }
