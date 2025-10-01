@@ -1,16 +1,13 @@
 import CachedIcon from '@mui/icons-material/Cached'
 import GitHub from '@mui/icons-material/GitHub'
-import { Chip, IconButton, Stack } from '@mui/material'
+import { Chip, IconButton, Stack, Tooltip } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
 import Container from '@mui/material/Container'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
-import { useUserData } from '../../hooks/useIps'
 import { SelectEnv } from './SelectEnv'
 
 export function Header() {
-  const { envOptions, selectedEnv, setSelectedEnv } = useUserData()
-
   function handleOpenGithub() {
     window.open('https://github.com/joaolfern/serveruler-client', '_blank')
   }
@@ -41,18 +38,16 @@ export function Header() {
             <IconButton onClick={() => window.location.reload()}>
               <CachedIcon />
             </IconButton>
-            <SelectEnv
-              envOptions={envOptions}
-              selectedEnv={selectedEnv}
-              handleEnv={setSelectedEnv}
-            />
-            <Chip
-              icon={<GitHub style={{ fontSize: 18, marginLeft: '10px' }} />}
-              label='Github'
-              size='medium'
-              variant='outlined'
-              onClick={handleOpenGithub}
-            />
+            <SelectEnv />
+            <Tooltip title='View source on GitHub' arrow>
+              <Chip
+                icon={<GitHub style={{ fontSize: 18, marginLeft: '10px' }} />}
+                label='Github'
+                size='medium'
+                variant='outlined'
+                onClick={handleOpenGithub}
+              />
+            </Tooltip>
           </Stack>
         </Toolbar>
       </Container>

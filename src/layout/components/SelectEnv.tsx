@@ -1,21 +1,13 @@
 import Business from '@mui/icons-material/Business'
-import Computer from '@mui/icons-material/Computer'
 import Home from '@mui/icons-material/Home'
 import Public from '@mui/icons-material/Public'
 import Smartphone from '@mui/icons-material/Smartphone'
 import { Box, MenuItem, Select, Stack } from '@mui/material'
+import { useUserData } from '../../hooks/useIps'
 
-interface ISelectEnvProps {
-  envOptions: string[]
-  selectedEnv: string
-  handleEnv: (env: string) => void
-}
+export function SelectEnv() {
+  const { envOptions, selectedEnv, setSelectedEnv } = useUserData()
 
-export function SelectEnv({
-  envOptions,
-  selectedEnv,
-  handleEnv
-}: ISelectEnvProps) {
   return (
     <Stack direction='row' spacing={1}>
       <Select
@@ -26,7 +18,7 @@ export function SelectEnv({
         key={selectedEnv}
         size='small'
         value={selectedEnv}
-        onChange={(e) => handleEnv(e.target.value)}
+        onChange={(e) => setSelectedEnv(e.target.value)}
         renderValue={(option) => <Item option={option} />}
       >
         {envOptions.map((option) => (
@@ -51,7 +43,7 @@ function Item({ option }: { option: string }) {
       case 'celular':
         return <Smartphone />
       default:
-        return <Computer />
+        return null
     }
   }
 
