@@ -38,7 +38,7 @@ export function Header() {
             Serveruler
           </Typography>
           <Stack direction='row' alignItems='center' spacing={1}>
-            <IconButton onClick={() => console.log('Atualizar')}>
+            <IconButton onClick={() => window.location.reload()}>
               <CachedIcon />
             </IconButton>
             <SelectEnv
