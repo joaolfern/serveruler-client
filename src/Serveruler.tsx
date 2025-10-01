@@ -18,7 +18,7 @@ import { getCompleteAddress } from './utils/getCompleteAddress'
 import { getIsOnline } from './utils/getIsOnline'
 
 export default function Serveruler() {
-  const { data, selectedEnv, selectedServer } = useUserData()
+  const { data, selectedEnv } = useUserData()
 
   return (
     <Box sx={{ pt: 2 }}>
@@ -27,7 +27,7 @@ export default function Serveruler() {
           const address = userData[selectedEnv]
           if (!address) return
           return (
-            <Grid key={user + selectedServer + selectedEnv}>
+            <Grid key={user + selectedEnv}>
               <User address={address} user={user} />
             </Grid>
           )

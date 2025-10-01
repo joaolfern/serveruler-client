@@ -1,5 +1,4 @@
 import { ReactNode, createContext, useEffect, useState } from 'react'
-import { SERVER_OPTIONS } from '../constants'
 import { getAvailableEnvs } from '../utils/getAvailableEnvs'
 import { getInitialEnvOptionIndex } from '../utils/getInitialEnvOptionIndex'
 
@@ -9,9 +8,7 @@ interface UserDataContextProps {
   data: Data
   envOptions: string[]
   selectedEnv: string
-  selectedServer: string | string[]
   setSelectedEnv: (env: string) => void
-  setSelectedServer: (server: string | string[]) => void
 }
 
 export const UserDataContext = createContext<UserDataContextProps | undefined>(
@@ -22,9 +19,6 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<Data>({})
   const [envOptions, setEnvOptions] = useState<string[]>([])
   const [selectedEnv, setSelectedEnv] = useState<string>('')
-  const [selectedServer, setSelectedServer] = useState<string | string[]>(
-    () => SERVER_OPTIONS[0].value
-  )
 
   useEffect(() => {
     async function updateData() {
@@ -56,9 +50,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
         data,
         envOptions,
         selectedEnv,
-        selectedServer,
-        setSelectedEnv,
-        setSelectedServer
+        setSelectedEnv
       }}
     >
       {children}
