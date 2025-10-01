@@ -43,30 +43,23 @@ interface IUserProps {
   selectedServer: string | string[]
 }
 
-enum Status {
-  'on' = 'on',
-  'off' = 'off',
-  'loading' = 'loading'
-}
-
-function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
-  const [status, setStatus] = useState<Status>(Status.loading)
+function User({ data, user, selectedEnv }: IUserProps) {
+  const [status, setStatus] = useState<Record<string, boolean>>()
   const [snackbarOpen, setSnackbarOpen] = useState(false)
 
   const address = useMemo(() => {
     return data[selectedEnv]
   }, [data, selectedEnv])
 
-  // TODO: COLOCAR NO HEADER
   async function updateStatus() {
-    setStatus(Status.loading)
-    const isOnline = await getIsOnline(address, selectedServer)
-    setStatus(isOnline ? Status.on : Status.off)
+    setStatus(undefined)
+    const isOnlineByAddress = await getIsOnline(address)
+    setStatus(isOnlineByAddress)
   }
 
   useEffect(() => {
     if (address) updateStatus()
-  }, [selectedEnv, selectedServer, data, address])
+  }, [selectedEnv, data, address])
 
   function copy(selectedServer: string) {
     const ip = getCompleteAddress(address, selectedServer)
@@ -77,11 +70,10 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
     setSnackbarOpen(true)
   }
 
-  const statusColor = useMemo(() => {
-    if (status === Status.loading) return 'warning'
-    if (status === Status.on) return 'success'
+  function statusColor(currentConnectionStatus: boolean | undefined) {
+    if (currentConnectionStatus) return 'success'
     return 'error'
-  }, [status])
+  }
 
   const [chipVariants, setChipVariants] = useState<
     Record<string, 'filled' | 'outlined'>
@@ -131,22 +123,30 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
               gap: 1
             }}
           >
-            {SERVER_OPTIONS.map(({ label, value }) => (
-              <LoadingWrapper status={status} key={label}>
-                <Chip
-                  label={chipVariants[label] === 'filled' ? value : label}
-                  variant={chipVariants[label] || 'outlined'}
-                  color={statusColor}
-                  onClick={() => copy(value)}
-                  onMouseEnter={() => handleVariant(label, true)}
-                  onMouseLeave={() => handleVariant(label, false)}
-                  sx={{
-                    width: '100%',
-                    maxWidth: 120
-                  }}
-                />
-              </LoadingWrapper>
-            ))}
+            {SERVER_OPTIONS.map(({ label, value }) => {
+              const currentConnectionStatus = status
+                ? Object.entries(status).find(([addr]) =>
+                    addr.endsWith(`:${value}`)
+                  )?.[1]
+                : undefined
+
+              return (
+                <LoadingWrapper status={currentConnectionStatus} key={label}>
+                  <Chip
+                    label={chipVariants[label] === 'filled' ? value : label}
+                    variant={chipVariants[label] || 'outlined'}
+                    color={statusColor(currentConnectionStatus)}
+                    onClick={() => copy(value)}
+                    onMouseEnter={() => handleVariant(label, true)}
+                    onMouseLeave={() => handleVariant(label, false)}
+                    sx={{
+                      width: '100%',
+                      maxWidth: 120
+                    }}
+                  />
+                </LoadingWrapper>
+              )
+            })}
           </Grid>
         </CardActions>
       </Card>
@@ -154,51 +154,55 @@ function User({ data, user, selectedEnv, selectedServer }: IUserProps) {
   )
 }
 
-async function getIsOnline(address: string, selectedServer: string | string[]) {
-  try {
-    const completeAddress = getCompleteAddress(address, selectedServer)
-    const request = Array.isArray(completeAddress)
-      ? completeAddress
-      : [completeAddress]
+async function getIsOnline(address: string) {
+  const completeAddress = getCompleteAddress(address)
+  const addresses = Array.isArray(completeAddress)
+    ? completeAddress
+    : [completeAddress]
 
-    const promises = request.map((ip) =>
-      fetch(ip, {
-        signal: AbortSignal.timeout(80000),
-        mode: 'no-cors'
-      })
-    )
+  const results = await Promise.allSettled(
+    addresses.map(async (ip) => {
+      const res = await fetch(ip, { signal: AbortSignal.timeout(5000) })
+      return res.ok
+    })
+  )
 
-    await Promise.all(promises)
+  const statusByAddress: Record<string, boolean> = {}
+  results.forEach((result, idx) => {
+    const ip = addresses[idx]
+    if (result.status === 'fulfilled' && result.value === true) {
+      statusByAddress[ip] = true
+    } else {
+      statusByAddress[ip] = false
+    }
+  })
 
-    return true
-  } catch (err) {
-    return false
-  }
+  return statusByAddress
 }
 
-function createCompleteAddressString(address: string, port: string) {
-  return `http://${address}:${port}`
-}
-
-function getCompleteAddress(address: string, port: string | string[]) {
-  if (Array.isArray(port)) {
-    const ip = port.map((p) => createCompleteAddressString(address, p))
-    return ip
+function getCompleteAddress(address: string, selectedPort?: string) {
+  if (selectedPort) {
+    return `http://${address}:${selectedPort}`
   }
 
-  const ip = createCompleteAddressString(address, port)
+  const ips: string[] = []
+  SERVER_OPTIONS.map((option) => {
+    const port = option.value
+    const ip = `http://${address}:${port}`
+    ips.push(ip)
+  })
 
-  return ip
+  return ips
 }
 
 function LoadingWrapper({
   status,
   children
 }: {
-  status: Status
+  status: boolean | undefined
   children: React.ReactNode
 }) {
-  if (status === Status.loading) {
+  if (status === undefined) {
     return (
       <Skeleton
         variant='rectangular'
