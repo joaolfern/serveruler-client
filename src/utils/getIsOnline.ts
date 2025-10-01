@@ -9,8 +9,8 @@ export async function getIsOnline(address: string) {
   const results = await Promise.allSettled(
     addresses.map(async (ip) => {
       try {
-        const res = await fetch(ip, { signal: AbortSignal.timeout(5000) })
-        return res.ok
+        await fetch(ip, { signal: AbortSignal.timeout(5000), mode: "no-cors",})
+        return true
       } catch (err) {
         console.error('Error checking online status for', ip, err)
         return false
