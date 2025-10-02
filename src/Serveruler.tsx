@@ -8,7 +8,8 @@ import {
   Grid,
   Skeleton,
   Snackbar,
-  Stack
+  Stack,
+  Typography
 } from '@mui/material'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { SERVER_OPTIONS } from './constants'
@@ -67,7 +68,13 @@ function User({ address, user }: IUserProps) {
   }, [address])
 
   const copy = useCallback(
-    (selectedServer: string) => {
+    (selectedServer?: string) => {
+      if (!selectedServer) {
+        copyToClipboard(address)
+        setSnackbarOpen(true)
+        return
+      }
+
       const ip = getCompleteAddress(address, selectedServer)
       const formattedIp = Array.isArray(ip) ? ip.join(', ') : ip
       copyToClipboard(formattedIp)
@@ -101,7 +108,7 @@ function User({ address, user }: IUserProps) {
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <Alert severity='success' sx={{ width: '100%' }}>
-          URL copiada com sucesso!
+          Endereço de IP copiado com sucesso!
         </Alert>
       </Snackbar>
 
@@ -115,8 +122,10 @@ function User({ address, user }: IUserProps) {
               alignItems: 'center'
             }}
           >
-            <span>{user}</span>
-            <span>{address}</span>
+            <Typography>{user}</Typography>
+            <Typography onClick={() => copy()} sx={{ cursor: 'pointer' }}>
+              {address}
+            </Typography>
           </Stack>
         </CardContent>
         <CardActions>
