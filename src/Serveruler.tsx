@@ -9,14 +9,14 @@ import {
   Skeleton,
   Snackbar,
   Stack,
-  Typography
-} from '@mui/material'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { SERVER_OPTIONS } from './constants'
-import { useUserData } from './hooks/useIps'
-import { copyToClipboard } from './utils/copyToClipboard'
-import { getCompleteAddress } from './utils/getCompleteAddress'
-import { getIsOnline } from './utils/getIsOnline'
+  Typography,
+} from "@mui/material"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { SERVER_OPTIONS } from "./constants"
+import { useUserData } from "./hooks/useIps"
+import { copyToClipboard } from "./utils/copyToClipboard"
+import { getCompleteAddress } from "./utils/getCompleteAddress"
+import { getIsOnline } from "./utils/getIsOnline"
 
 export default function Serveruler() {
   const { data, selectedEnv } = useUserData()
@@ -45,27 +45,43 @@ interface IUserProps {
 
 function User({ address, user }: IUserProps) {
   const [status, setStatus] = useState<Record<string, boolean>>({})
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({})
   const [chipVariants, setChipVariants] = useState<
-    Record<string, 'filled' | 'outlined'>
+    Record<string, "filled" | "outlined">
   >({})
   const [snackbarOpen, setSnackbarOpen] = useState(false)
+
+  const updateItemLoading = useCallback((item: string, loading: boolean) => {
+    setIsLoading((prev) => ({
+      ...prev,
+      [item]: loading,
+    }))
+  }, [])
+
+  const updateItemStatus = useCallback((item: string, online: boolean) => {
+    setStatus((prev) => ({
+      ...prev,
+      [item]: online,
+    }))
+  }, [])
 
   useEffect(() => {
     let cancelled = false
     async function updateStatus() {
-      setIsLoading(true)
-      const isOnlineByAddress = await getIsOnline(address)
+      const isOnlineByAddress = await getIsOnline({
+        address,
+        updateItemLoading,
+        updateItemStatus,
+      })
       if (!cancelled) {
         setStatus(isOnlineByAddress)
-        setIsLoading(false)
       }
     }
     updateStatus()
     return () => {
       cancelled = true
     }
-  }, [address])
+  }, [address, updateItemLoading, updateItemStatus])
 
   const copy = useCallback(
     (selectedServer?: string) => {
@@ -76,7 +92,7 @@ function User({ address, user }: IUserProps) {
       }
 
       const ip = getCompleteAddress(address, selectedServer)
-      const formattedIp = Array.isArray(ip) ? ip.join(', ') : ip
+      const formattedIp = Array.isArray(ip) ? ip.join(", ") : ip
       copyToClipboard(formattedIp)
       setSnackbarOpen(true)
     },
@@ -86,14 +102,14 @@ function User({ address, user }: IUserProps) {
   function handleVariant(label: string, isFilled: boolean) {
     setChipVariants((prev) => ({
       ...prev,
-      [label]: isFilled ? 'filled' : 'outlined'
+      [label]: isFilled ? "filled" : "outlined",
     }))
   }
 
   const statusByPort = useMemo(() => {
     const result: Record<string, boolean> = {}
     Object.entries(status).forEach(([addr, online]) => {
-      const port = addr.split(':').pop()
+      const port = addr.split(":").pop()
       if (port) result[port] = online
     })
     return result
@@ -105,9 +121,9 @@ function User({ address, user }: IUserProps) {
         open={snackbarOpen}
         autoHideDuration={750}
         onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Alert severity='success' sx={{ width: '100%' }}>
+        <Alert severity="success" sx={{ width: "100%" }}>
           Endereço de IP copiado com sucesso!
         </Alert>
       </Snackbar>
@@ -115,47 +131,49 @@ function User({ address, user }: IUserProps) {
       <Card sx={{ maxWidth: 275, pb: 1 }}>
         <CardContent>
           <Stack
-            direction='row'
+            direction="row"
             sx={{
-              width: '100%',
-              justifyContent: 'space-between',
-              alignItems: 'center'
+              width: "100%",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
             <Typography>{user}</Typography>
-            <Typography onClick={() => copy()} sx={{ cursor: 'pointer' }}>
+            <Typography onClick={() => copy()} sx={{ cursor: "pointer" }}>
               {address}
             </Typography>
           </Stack>
         </CardContent>
-        <CardActions>
+        <CardActions style={{ paddingTop: 0 }}>
           <Grid
             container
             sx={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              width: '100%',
-              gridAutoColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-              gap: 1
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+              gridAutoColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+              gap: 1,
             }}
           >
             {SERVER_OPTIONS.map(({ label, value }) => {
               const formattedLabel =
-                chipVariants[label] === 'filled' ? value : label
+                chipVariants[label] === "filled" ? value : label
               const currentConnectionStatus = statusByPort[value]
+              const isLoadingKey = `http://${address}:${value}`
+              const isItemLoading = isLoading[isLoadingKey]
 
               return (
-                <LoadingWrapper key={label} loading={isLoading}>
+                <LoadingWrapper key={label} loading={isItemLoading}>
                   <Chip
                     label={formattedLabel}
-                    variant={chipVariants[label] || 'outlined'}
-                    color={currentConnectionStatus ? 'success' : 'error'}
+                    variant={chipVariants[label] || "outlined"}
+                    color={currentConnectionStatus ? "success" : "error"}
                     onClick={() => copy(value)}
                     onMouseEnter={() => handleVariant(label, true)}
                     onMouseLeave={() => handleVariant(label, false)}
                     sx={{
-                      width: '100%',
-                      maxWidth: 120
+                      width: "100%",
+                      maxWidth: 120,
                     }}
                   />
                 </LoadingWrapper>
@@ -170,7 +188,7 @@ function User({ address, user }: IUserProps) {
 
 function LoadingWrapper({
   loading,
-  children
+  children,
 }: {
   loading: boolean
   children: React.ReactNode
@@ -178,9 +196,9 @@ function LoadingWrapper({
   if (loading) {
     return (
       <Skeleton
-        variant='rectangular'
+        variant="rectangular"
         width={120}
-        height={30}
+        height={32}
         sx={{ borderRadius: 16 }}
       />
     )
