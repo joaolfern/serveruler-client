@@ -1,5 +1,6 @@
 import {
   Alert,
+  Avatar,
   Box,
   Card,
   CardActions,
@@ -10,110 +11,113 @@ import {
   Snackbar,
   Stack,
   Typography,
-} from "@mui/material"
-import { useCallback, useEffect, useMemo, useState } from "react"
-import { SERVER_OPTIONS } from "./constants"
-import { useUserData } from "./hooks/useIps"
-import { copyToClipboard } from "./utils/copyToClipboard"
-import { getCompleteAddress } from "./utils/getCompleteAddress"
-import { getIsOnline } from "./utils/getIsOnline"
+} from "@mui/material";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { SERVER_OPTIONS } from "./constants";
+import { useUserData } from "./hooks/useIps";
+import { copyToClipboard } from "./utils/copyToClipboard";
+import { getCompleteAddress } from "./utils/getCompleteAddress";
+import { getIsOnline } from "./utils/getIsOnline";
 
 export default function Serveruler() {
-  const { data, selectedEnv } = useUserData()
+  const { data, selectedEnv } = useUserData();
 
   return (
     <Box sx={{ pt: 2 }}>
       <Grid container gap={2}>
         {Object.entries(data).map(([user, userData]) => {
-          const address = userData[selectedEnv]
-          if (!address) return
+          const address = userData[selectedEnv];
+          if (!address) return;
           return (
             <Grid key={user + selectedEnv}>
               <User address={address} user={user} />
             </Grid>
-          )
+          );
         })}
       </Grid>
     </Box>
-  )
+  );
 }
 
 interface IUserProps {
-  address: string
-  user: string
+  address: string;
+  user: string;
 }
 
 function User({ address, user }: IUserProps) {
-  const [status, setStatus] = useState<Record<string, boolean>>({})
-  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({})
+  const [status, setStatus] = useState<Record<string, boolean>>({});
+  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
   const [chipVariants, setChipVariants] = useState<
     Record<string, "filled" | "outlined">
-  >({})
-  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  >({});
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const updateItemLoading = useCallback((item: string, loading: boolean) => {
     setIsLoading((prev) => ({
       ...prev,
       [item]: loading,
-    }))
-  }, [])
+    }));
+  }, []);
 
   const updateItemStatus = useCallback((item: string, online: boolean) => {
     setStatus((prev) => ({
       ...prev,
       [item]: online,
-    }))
-  }, [])
+    }));
+  }, []);
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     async function updateStatus() {
       const isOnlineByAddress = await getIsOnline({
         address,
         updateItemLoading,
         updateItemStatus,
-      })
+      });
       if (!cancelled) {
-        setStatus(isOnlineByAddress)
+        setStatus(isOnlineByAddress);
       }
     }
-    updateStatus()
+    updateStatus();
     return () => {
-      cancelled = true
-    }
-  }, [address, updateItemLoading, updateItemStatus])
+      cancelled = true;
+    };
+  }, [address, updateItemLoading, updateItemStatus]);
 
   const copy = useCallback(
     (selectedServer?: string) => {
       if (!selectedServer) {
-        copyToClipboard(address)
-        setSnackbarOpen(true)
-        return
+        copyToClipboard(address);
+        setSnackbarOpen(true);
+        return;
       }
 
-      const ip = getCompleteAddress(address, selectedServer)
-      const formattedIp = Array.isArray(ip) ? ip.join(", ") : ip
-      copyToClipboard(formattedIp)
-      setSnackbarOpen(true)
+      const ip = getCompleteAddress(address, selectedServer);
+      const formattedIp = Array.isArray(ip) ? ip.join(", ") : ip;
+      copyToClipboard(formattedIp);
+      setSnackbarOpen(true);
     },
     [address]
-  )
+  );
 
   function handleVariant(label: string, isFilled: boolean) {
     setChipVariants((prev) => ({
       ...prev,
       [label]: isFilled ? "filled" : "outlined",
-    }))
+    }));
   }
 
   const statusByPort = useMemo(() => {
-    const result: Record<string, boolean> = {}
+    const result: Record<string, boolean> = {};
     Object.entries(status).forEach(([addr, online]) => {
-      const port = addr.split(":").pop()
-      if (port) result[port] = online
-    })
-    return result
-  }, [status])
+      const port = addr.split(":").pop();
+      if (port) result[port] = online;
+    });
+    return result;
+  }, [status]);
+
+  const username = USERNAMES[user];
+  const profileImage = username && `https://github.com/${username}.png`;
 
   return (
     <>
@@ -138,7 +142,10 @@ function User({ address, user }: IUserProps) {
               alignItems: "center",
             }}
           >
-            <Typography>{user}</Typography>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Avatar src={profileImage} sx={{ width: 24, height: 24 }} />
+              <Typography>{user}</Typography>
+            </Stack>
             <Typography onClick={() => copy()} sx={{ cursor: "pointer" }}>
               {address}
             </Typography>
@@ -157,10 +164,10 @@ function User({ address, user }: IUserProps) {
           >
             {SERVER_OPTIONS.map(({ label, value }) => {
               const formattedLabel =
-                chipVariants[label] === "filled" ? value : label
-              const currentConnectionStatus = statusByPort[value]
-              const isLoadingKey = `http://${address}:${value}`
-              const isItemLoading = isLoading[isLoadingKey]
+                chipVariants[label] === "filled" ? value : label;
+              const currentConnectionStatus = statusByPort[value];
+              const isLoadingKey = `http://${address}:${value}`;
+              const isItemLoading = isLoading[isLoadingKey];
 
               return (
                 <LoadingWrapper key={label} loading={isItemLoading}>
@@ -177,21 +184,21 @@ function User({ address, user }: IUserProps) {
                     }}
                   />
                 </LoadingWrapper>
-              )
+              );
             })}
           </Grid>
         </CardActions>
       </Card>
     </>
-  )
+  );
 }
 
 function LoadingWrapper({
   loading,
   children,
 }: {
-  loading: boolean
-  children: React.ReactNode
+  loading: boolean;
+  children: React.ReactNode;
 }) {
   if (loading) {
     return (
@@ -201,7 +208,31 @@ function LoadingWrapper({
         height={32}
         sx={{ borderRadius: 16 }}
       />
-    )
+    );
   }
-  return children
+  return children;
 }
+
+const USERNAMES: Record<string, string> = {
+  joao: "joaolfern",
+  carlos: "JoaoCarlosP",
+  vieira: "RafaelHDSV",
+  fernanda: "mfernandanll",
+  bruno: "BrunoPasqual",
+  lucas: "lucasrbordignon",
+  tobias: "tobiasperassi",
+  zarco: "felipezarco",
+  danieli: "Danieli01",
+  davi: "DaviSanttos",
+  marcus: "marcuslaraa",
+  mateus: "Al-Esmarfe",
+  robson: "RobsonArita",
+  michael: "MichaelDouglasLima",
+  diego: "odiegoalessandro",
+  janderson: "JandersonSR",
+  nicolas: "Nicolaskn95",
+  thales: "thalesmanoel",
+  ana: "anamrcnds",
+  andre: "AndreLuizJPoles",
+  vinicius: "ViniciusRibeiro6",
+};
