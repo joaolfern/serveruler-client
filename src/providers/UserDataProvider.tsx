@@ -1,22 +1,11 @@
-import { ReactNode, createContext, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { getAvailableEnvs } from '../utils/getAvailableEnvs'
 import { getInitialEnvOptionIndex } from '../utils/getInitialEnvOptionIndex'
-
-export type Data = Record<string, Record<string, string>>
-
-interface UserDataContextProps {
-  data: Data
-  envOptions: string[]
-  selectedEnv: string
-  setSelectedEnv: (env: string) => void
-}
-
-export const UserDataContext = createContext<UserDataContextProps | undefined>(
-  undefined
-)
+import { IResponse } from '../interfaces/IResponse'
+import { UserDataContext } from '../contexts/UserDataContext'
 
 export function UserDataProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<Data>({})
+  const [data, setData] = useState<IResponse>({})
   const [envOptions, setEnvOptions] = useState<string[]>([])
   const [selectedEnv, setSelectedEnv] = useState<string>('')
 
@@ -25,7 +14,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
       const data = await fetchData()
       const sortedData = Object.fromEntries(
         Object.entries(data).sort((a, b) => a[0].localeCompare(b[0]))
-      ) as Data
+      ) as IResponse
       setData(sortedData)
     }
 
@@ -34,14 +23,18 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!data) return
+
     const envOptions = getAvailableEnvs(data)
+
     setEnvOptions(envOptions)
   }, [data])
 
   useEffect(() => {
     const initialEnvOptionIndex = getInitialEnvOptionIndex()
-    if (!selectedEnv && envOptions[initialEnvOptionIndex])
+
+    if (envOptions[initialEnvOptionIndex]) {
       setSelectedEnv(envOptions[initialEnvOptionIndex])
+    }
   }, [envOptions])
 
   return (
@@ -50,7 +43,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
         data,
         envOptions,
         selectedEnv,
-        setSelectedEnv
+        setSelectedEnv,
       }}
     >
       {children}

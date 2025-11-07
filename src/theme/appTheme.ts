@@ -1,5 +1,5 @@
-import { alpha, createTheme } from "@mui/material";
-import { themeShadows } from "./shadows";
+import { alpha, createTheme } from '@mui/material'
+import { themeShadows } from './shadows'
 import {
   amber,
   blue,
@@ -9,35 +9,35 @@ import {
   lightGreen,
   pink,
   red,
-} from "@mui/material/colors";
+} from '@mui/material/colors'
 
-const background = "#171a1f";
-const bodyBackground = "#111111";
+const background = '#171a1f'
+const bodyBackground = '#111111'
 
-export const appTheme = (mode: "light" | "dark") => {
-  const isDarkMode = mode === "dark";
+export const appTheme = (mode: 'light' | 'dark') => {
+  const isDarkMode = mode === 'dark'
 
   return createTheme({
     palette: {
       mode,
       primary: {
-        main: blue["A700"],
-        light: isDarkMode ? blue["A400"] : alpha(blue["A100"], 0.2),
+        main: blue['A700'],
+        light: isDarkMode ? blue['A400'] : alpha(blue['A100'], 0.2),
       },
       secondary: {
-        main: pink["A700"],
+        main: pink['A700'],
       },
       success: {
-        main: lightGreen["A700"],
+        main: lightGreen['A700'],
       },
       error: {
-        main: red["A400"],
+        main: red['A400'],
       },
       info: {
-        main: lightBlue["A400"],
+        main: lightBlue['A400'],
       },
       warning: {
-        main: amber["A700"],
+        main: amber['A700'],
       },
       divider: isDarkMode ? blueGrey[800] : blueGrey[100],
       background: {
@@ -51,42 +51,42 @@ export const appTheme = (mode: "light" | "dark") => {
     spacing: 8,
     typography: {
       fontFamily: [
-        "Noto Sans",
+        'Noto Sans',
         '"Source Sans Pro"',
-        "-apple-system",
-        "BlinkMacSystemFont",
-        "Roboto",
+        '-apple-system',
+        'BlinkMacSystemFont',
+        'Roboto',
         '"Helvetica Neue"',
-        "Arial",
-        "sans-serif",
+        'Arial',
+        'sans-serif',
         '"Apple Color Emoji"',
         '"Segoe UI Emoji"',
         '"Segoe UI Symbol"',
-      ].join(","),
+      ].join(','),
       fontWeightMedium: 600,
       fontWeightBold: 700,
       h1: {
-        fontSize: "5rem",
+        fontSize: '5rem',
         fontWeight: 600,
       },
       h2: {
-        fontSize: "3.75rem",
+        fontSize: '3.75rem',
         fontWeight: 600,
       },
       h3: {
-        fontSize: "3rem",
+        fontSize: '3rem',
         fontWeight: 600,
       },
       h4: {
-        fontSize: "2.125rem",
+        fontSize: '2.125rem',
         fontWeight: 600,
       },
       h5: {
-        fontSize: "1.5rem",
+        fontSize: '1.5rem',
         fontWeight: 600,
       },
       h6: {
-        fontSize: "1.25rem",
+        fontSize: '1.25rem',
         fontWeight: 600,
       },
     },
@@ -94,18 +94,18 @@ export const appTheme = (mode: "light" | "dark") => {
     components: {
       MuiCssBaseline: {
         styleOverrides: {
-          ":root": {
-            colorScheme: isDarkMode ? "dark" : "light",
+          ':root': {
+            colorScheme: isDarkMode ? 'dark' : 'light',
           },
           html: {
-            minHeight: "100%",
+            minHeight: '100%',
           },
           body: {
-            minHeight: "100%",
+            minHeight: '100%',
             backgroundColor: isDarkMode ? bodyBackground : blueGrey[50],
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "top right",
-            backgroundSize: "100%",
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'top right',
+            backgroundSize: '100%',
           },
         },
       },
@@ -117,14 +117,14 @@ export const appTheme = (mode: "light" | "dark") => {
       MuiListItem: {
         styleOverrides: {
           gutters: {
-            padding: "0 16px",
+            padding: '0 16px',
           },
         },
       },
       MuiCardContent: {
         styleOverrides: {
           root: {
-            padding: "1em",
+            padding: '1em',
           },
         },
       },
@@ -134,35 +134,35 @@ export const appTheme = (mode: "light" | "dark") => {
         },
         styleOverrides: {
           root: {
-            textTransform: "none",
-            boxShadow: "none",
+            textTransform: 'none',
+            boxShadow: 'none',
           },
           contained: {
             // boxShadow: '5px 3px 0px 0 rgba(16, 141, 255, 0.1)',
             // boxShadow: '2px 5px 10px 2px rgba(16, 141, 255, 0.2)'
           },
           sizeSmall: {
-            padding: "2px 12px",
+            padding: '2px 12px',
           },
           sizeMedium: {
-            padding: "6px 18px",
+            padding: '6px 18px',
           },
           sizeLarge: {
-            padding: "10px 24px",
+            padding: '10px 24px',
           },
         },
       },
       MuiAppBar: {
         styleOverrides: {
           root: {
-            boxShadow: "none",
+            boxShadow: 'none',
           },
         },
       },
       MuiDrawer: {
         styleOverrides: {
           paper: {
-            borderRight: "0",
+            borderRight: '0',
             backgroundColor: isDarkMode ? background : grey[50],
           },
         },
@@ -170,17 +170,17 @@ export const appTheme = (mode: "light" | "dark") => {
       MuiCard: {
         styleOverrides: {
           root: {
-            backgroundImage: "none",
+            backgroundImage: 'none',
           },
         },
       },
       MuiPaper: {
         styleOverrides: {
           root: {
-            backgroundImage: "none",
+            backgroundImage: 'none',
           },
         },
       },
     },
-  });
-};
+  })
+}

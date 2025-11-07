@@ -1,4 +1,4 @@
-import { getCompleteAddress } from "./getCompleteAddress"
+import { getCompleteAddress } from './getCompleteAddress'
 
 type GetIsOnlineProps = {
   address: string
@@ -20,12 +20,12 @@ export async function getIsOnline({
     addresses.map(async (ip) => {
       try {
         updateItemLoading(ip, true)
-        await fetch(ip, { signal: AbortSignal.timeout(5000), mode: "no-cors" })
+        await fetch(ip, { signal: AbortSignal.timeout(5000), mode: 'no-cors' })
         updateItemStatus(ip, true)
 
         return true
       } catch (err) {
-        console.error("Error checking online status for", ip, err)
+        console.error('Error checking online status for', ip, err)
         updateItemStatus(ip, false)
         return false
       } finally {
@@ -37,7 +37,7 @@ export async function getIsOnline({
   const statusByAddress: Record<string, boolean> = {}
   results.forEach((result, idx) => {
     const ip = addresses[idx]
-    if (result.status === "fulfilled" && result.value === true) {
+    if (result.status === 'fulfilled' && result.value === true) {
       statusByAddress[ip] = true
     } else {
       statusByAddress[ip] = false

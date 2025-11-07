@@ -13,7 +13,7 @@ export function SelectEnv() {
       <Select
         sx={{
           boxShadow: 'none',
-          '.MuiOutlinedInput-notchedOutline': { border: 0 }
+          '.MuiOutlinedInput-notchedOutline': { border: 0 },
         }}
         key={selectedEnv}
         size='small'

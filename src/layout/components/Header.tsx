@@ -29,7 +29,7 @@ export function Header() {
               mr: 2,
               flexGrow: 1,
               fontWeight: 700,
-              color: 'inherit'
+              color: 'inherit',
             }}
           >
             Serveruler
