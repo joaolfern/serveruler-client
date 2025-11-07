@@ -9,7 +9,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { SERVER_OPTIONS } from '../../../../constants'
 import { copyToClipboard } from '../../../../utils/copyToClipboard'
 import { getCompleteAddress } from '../../../../utils/getCompleteAddress'
@@ -21,7 +21,7 @@ interface IUserProps {
   user: string
 }
 
-export function UserCard({ address, user }: IUserProps) {
+export const UserCard = memo(function UserCard({ address, user }: IUserProps) {
   const [status, setStatus] = useState<Record<string, boolean>>({})
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({})
   const [chipVariants, setChipVariants] = useState<
@@ -156,7 +156,7 @@ export function UserCard({ address, user }: IUserProps) {
       </Card>
     </>
   )
-}
+})
 
 const USERNAMES: Record<string, string> = {
   joao: 'joaolfern',
