@@ -61,8 +61,8 @@ export const UserCard = memo(function UserCard({ address, user }: IUserProps) {
     }
   }, [address, updateItemLoading, updateItemStatus])
 
-  const copy = useCallback(
-    (selectedServer?: string) => {
+  const handleAddressClick = useCallback(
+    (ctrl: boolean, selectedServer?: string) => {
       if (!selectedServer) {
         copyToClipboard(address)
         setSnackbarOpen(true)
@@ -71,6 +71,12 @@ export const UserCard = memo(function UserCard({ address, user }: IUserProps) {
 
       const ip = getCompleteAddress(address, selectedServer)
       const formattedIp = Array.isArray(ip) ? ip.join(', ') : ip
+
+      if (ctrl) {
+        window.open(formattedIp, '_blank')
+        return
+      }
+
       copyToClipboard(formattedIp)
       setSnackbarOpen(true)
     },
@@ -123,7 +129,10 @@ export const UserCard = memo(function UserCard({ address, user }: IUserProps) {
               <Avatar src={profileImage} sx={{ width: 24, height: 24 }} />
               <Typography>{user}</Typography>
             </Stack>
-            <Typography onClick={() => copy()} sx={{ cursor: 'pointer' }}>
+            <Typography
+              onClick={() => handleAddressClick(false)}
+              sx={{ cursor: 'pointer' }}
+            >
               {address}
             </Typography>
           </Stack>
@@ -148,7 +157,7 @@ export const UserCard = memo(function UserCard({ address, user }: IUserProps) {
                 status={statusByPort[port]}
                 variant={chipVariants[label]}
                 handleVariant={handleVariant}
-                copy={copy}
+                copy={handleAddressClick}
               />
             ))}
           </Grid>

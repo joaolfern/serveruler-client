@@ -8,7 +8,7 @@ interface ServerChipProps {
   status: boolean
   isItemLoading: boolean
   handleVariant: (label: string, isFilled: boolean) => void
-  copy: (value: string) => void
+  copy: (ctrl: boolean, value: string) => void
 }
 
 export const ServerChip = memo(function ServerChip({
@@ -28,7 +28,7 @@ export const ServerChip = memo(function ServerChip({
         label={formattedLabel}
         variant={variant || 'outlined'}
         color={currentConnectionStatus ? 'success' : 'error'}
-        onClick={() => copy(port)}
+        onClick={(e) => copy(e.ctrlKey, port)}
         onMouseEnter={() => handleVariant(label, true)}
         onMouseLeave={() => handleVariant(label, false)}
         sx={{
