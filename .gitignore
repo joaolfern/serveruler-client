@@ -26,3 +26,4 @@ public/data.json
 database
 database/*
 .env
+.eslintcache
